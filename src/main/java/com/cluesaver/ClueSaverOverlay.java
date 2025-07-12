@@ -41,14 +41,16 @@ public class ClueSaverOverlay extends OverlayPanel
 	private final ClueSaverPlugin plugin;
 	private final ClueSaverConfig config;
 	private final TooltipManager tooltipManager;
+	private final ClueStates clueStates;
 
 	@Inject
-	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager)
+	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager, ClueStates clueStates)
 	{
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
 		this.tooltipManager = tooltipManager;
+		this.clueStates = clueStates;
 
 		setPosition(OverlayPosition.TOOLTIP);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -74,14 +76,18 @@ public class ClueSaverOverlay extends OverlayPanel
 		}
 
 		MenuEntry entry = client.isMenuOpen() ? plugin.hoveredMenuEntry(menuEntries) : menuEntries[menuEntries.length - 1];
+		int itemId = entry.getItemId();
 		int objectId = plugin.objectIdForEntry(entry);
 
-		if (objectId != -1 && plugin.isClueMethodToSave(objectId, entry.getOption()))
+		if ((objectId != -1 && plugin.isEliteClueMethodToSave(objectId, entry.getOption()))
+			|| plugin.isItemIdMethodToSave(itemId))
 		{
-			String tooltipText = plugin.getCause();
+			ClueTier tier = clueStates.getTierFromItemId(itemId);
+			String tooltipText = plugin.getTierSavingCause(tier);
 
 			if (tooltipText != null)
 			{
+				tooltipText = plugin.getActiveSavingText() + tooltipText;
 				tooltipManager.add(new Tooltip(tooltipText));
 			}
 		}

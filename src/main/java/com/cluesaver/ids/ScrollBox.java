@@ -22,19 +22,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.cluesaver;
+package com.cluesaver.ids;
 
-import org.apache.commons.lang3.StringUtils;
-
-public enum ClueLocation
+public class ScrollBox
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
-
-	@Override
-	public String toString()
-	{
-		return StringUtils.lowerCase(super.toString());
-	}
+	public static final int CLUE_SCROLL_BOX_BEGINNER = 24361;
+	public static final int CLUE_SCROLL_BOX_EASY = 24362;
+	public static final int CLUE_SCROLL_BOX_MEDIUM = 24363;
+	public static final int CLUE_SCROLL_BOX_HARD = 24364;
+	public static final int CLUE_SCROLL_BOX_ELITE = 24365;
+	public static final int CLUE_SCROLL_BOX_MASTER = 24366;
 }

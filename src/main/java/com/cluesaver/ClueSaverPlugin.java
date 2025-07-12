@@ -24,11 +24,14 @@
  */
 package com.cluesaver;
 
+import com.cluesaver.ids.GoldChest;
+import com.cluesaver.ids.ImplingJars;
+import com.cluesaver.ids.ScrollBox;
 import com.google.inject.Provides;
 import java.awt.Color;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 import javax.inject.Inject;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
@@ -53,11 +56,16 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.MenuShouldLeftClick;
+import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ClientShutdown;
+import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -97,158 +105,27 @@ public class ClueSaverPlugin extends Plugin
 
 	@Inject
 	private ClueSaverConfig config;
-	private ClueLocation eliteLocation = ClueLocation.UNKNOWN;
-	private boolean clueDeposited = false;
 
-	private final List<Integer> goldChests = Arrays.asList(
-		ObjectID.GOLD_CHEST,
-		ObjectID.GOLD_CHEST_41213,
-		ObjectID.GOLD_CHEST_41214,
-		ObjectID.GOLD_CHEST_41215,
-		ObjectID.GOLD_CHEST_41216);
+	@Inject
+	private ClueSaverUtils scrollBoxUtils;
 
-	private final List<Integer> eliteClues = Arrays.asList(
-		ItemID.CLUE_SCROLL_ELITE,
-		ItemID.CLUE_SCROLL_ELITE_12157,
-		ItemID.CLUE_SCROLL_ELITE_28912,
-		ItemID.CLUE_SCROLL_ELITE_12089,
-		ItemID.CLUE_SCROLL_ELITE_12091,
-		ItemID.CLUE_SCROLL_ELITE_12110,
-		ItemID.CLUE_SCROLL_ELITE_12086,
-		ItemID.CLUE_SCROLL_ELITE_12111,
-		ItemID.CLUE_SCROLL_ELITE_12107,
-		ItemID.CLUE_SCROLL_ELITE_23770,
-		ItemID.CLUE_SCROLL_ELITE_12100,
-		ItemID.CLUE_SCROLL_ELITE_12098,
-		ItemID.CLUE_SCROLL_ELITE_25499,
-		ItemID.CLUE_SCROLL_ELITE_12102,
-		ItemID.CLUE_SCROLL_ELITE_12103,
-		ItemID.CLUE_SCROLL_ELITE_25498,
-		ItemID.CLUE_SCROLL_ELITE_12088,
-		ItemID.CLUE_SCROLL_ELITE_12099,
-		ItemID.CLUE_SCROLL_ELITE_25787,
-		ItemID.CLUE_SCROLL_ELITE_19813,
-		ItemID.CLUE_SCROLL_ELITE_12085,
-		ItemID.CLUE_SCROLL_ELITE_12108,
-		ItemID.CLUE_SCROLL_ELITE_12106,
-		ItemID.CLUE_SCROLL_ELITE_26944,
-		ItemID.CLUE_SCROLL_ELITE_12096,
-		ItemID.CLUE_SCROLL_ELITE_12104,
-		ItemID.CLUE_SCROLL_ELITE_23146,
-		ItemID.CLUE_SCROLL_ELITE_12090,
-		ItemID.CLUE_SCROLL_ELITE_12094,
-		ItemID.CLUE_SCROLL_ELITE_12105,
-		ItemID.CLUE_SCROLL_ELITE_12087,
-		ItemID.CLUE_SCROLL_ELITE_23148,
-		ItemID.CLUE_SCROLL_ELITE_12109,
-		ItemID.CLUE_SCROLL_ELITE_12101,
-		ItemID.CLUE_SCROLL_ELITE_12092,
-		ItemID.CLUE_SCROLL_ELITE_12095,
-		ItemID.CLUE_SCROLL_ELITE_23147,
-		ItemID.CLUE_SCROLL_ELITE_12097,
-		ItemID.CLUE_SCROLL_ELITE_12093,
-		ItemID.CLUE_SCROLL_ELITE_22000,
-		ItemID.CLUE_SCROLL_ELITE_24253,
-		ItemID.CLUE_SCROLL_ELITE_12156,
-		ItemID.CLUE_SCROLL_ELITE_19797,
-		ItemID.CLUE_SCROLL_ELITE_19805,
-		ItemID.CLUE_SCROLL_ELITE_19804,
-		ItemID.CLUE_SCROLL_ELITE_19798,
-		ItemID.CLUE_SCROLL_ELITE_19799,
-		ItemID.CLUE_SCROLL_ELITE_19800,
-		ItemID.CLUE_SCROLL_ELITE_19806,
-		ItemID.CLUE_SCROLL_ELITE_19796,
-		ItemID.CLUE_SCROLL_ELITE_19803,
-		ItemID.CLUE_SCROLL_ELITE_19801,
-		ItemID.CLUE_SCROLL_ELITE_19802,
-		ItemID.CLUE_SCROLL_ELITE_12151,
-		ItemID.CLUE_SCROLL_ELITE_19809,
-		ItemID.CLUE_SCROLL_ELITE_19793,
-		ItemID.CLUE_SCROLL_ELITE_19784,
-		ItemID.CLUE_SCROLL_ELITE_12075,
-		ItemID.CLUE_SCROLL_ELITE_19789,
-		ItemID.CLUE_SCROLL_ELITE_12078,
-		ItemID.CLUE_SCROLL_ELITE_28910,
-		ItemID.CLUE_SCROLL_ELITE_12132,
-		ItemID.CLUE_SCROLL_ELITE_12138,
-		ItemID.CLUE_SCROLL_ELITE_12076,
-		ItemID.CLUE_SCROLL_ELITE_21524,
-		ItemID.CLUE_SCROLL_ELITE_12134,
-		ItemID.CLUE_SCROLL_ELITE_12079,
-		ItemID.CLUE_SCROLL_ELITE_12158,
-		ItemID.CLUE_SCROLL_ELITE_19810,
-		ItemID.CLUE_SCROLL_ELITE_12150,
-		ItemID.CLUE_SCROLL_ELITE_12154,
-		ItemID.CLUE_SCROLL_ELITE_21525,
-		ItemID.CLUE_SCROLL_ELITE_19785,
-		ItemID.CLUE_SCROLL_ELITE_12145,
-		ItemID.CLUE_SCROLL_ELITE_12141,
-		ItemID.CLUE_SCROLL_ELITE_12140,
-		ItemID.CLUE_SCROLL_ELITE_12080,
-		ItemID.CLUE_SCROLL_ELITE_19791,
-		ItemID.CLUE_SCROLL_ELITE_12155,
-		ItemID.CLUE_SCROLL_ELITE_12144,
-		ItemID.CLUE_SCROLL_ELITE_12152,
-		ItemID.CLUE_SCROLL_ELITE_12153,
-		ItemID.CLUE_SCROLL_ELITE_19782,
-		ItemID.CLUE_SCROLL_ELITE_12074,
-		ItemID.CLUE_SCROLL_ELITE_12083,
-		ItemID.CLUE_SCROLL_ELITE_19792,
-		ItemID.CLUE_SCROLL_ELITE_12082,
-		ItemID.CLUE_SCROLL_ELITE_19790,
-		ItemID.CLUE_SCROLL_ELITE_12136,
-		ItemID.CLUE_SCROLL_ELITE_12133,
-		ItemID.CLUE_SCROLL_ELITE_23144,
-		ItemID.CLUE_SCROLL_ELITE_12135,
-		ItemID.CLUE_SCROLL_ELITE_19794,
-		ItemID.CLUE_SCROLL_ELITE_23145,
-		ItemID.CLUE_SCROLL_ELITE_19787,
-		ItemID.CLUE_SCROLL_ELITE_12146,
-		ItemID.CLUE_SCROLL_ELITE_19795,
-		ItemID.CLUE_SCROLL_ELITE_25786,
-		ItemID.CLUE_SCROLL_ELITE_12077,
-		ItemID.CLUE_SCROLL_ELITE_19807,
-		ItemID.CLUE_SCROLL_ELITE_12127,
-		ItemID.CLUE_SCROLL_ELITE_19788,
-		ItemID.CLUE_SCROLL_ELITE_12130,
-		ItemID.CLUE_SCROLL_ELITE_12159,
-		ItemID.CLUE_SCROLL_ELITE_12143,
-		ItemID.CLUE_SCROLL_ELITE_19786,
-		ItemID.CLUE_SCROLL_ELITE_12142,
-		ItemID.CLUE_SCROLL_ELITE_12137,
-		ItemID.CLUE_SCROLL_ELITE_12149,
-		ItemID.CLUE_SCROLL_ELITE_12148,
-		ItemID.CLUE_SCROLL_ELITE_19808,
-		ItemID.CLUE_SCROLL_ELITE_28911,
-		ItemID.CLUE_SCROLL_ELITE_12081,
-		ItemID.CLUE_SCROLL_ELITE_19811,
-		ItemID.CLUE_SCROLL_ELITE_12147,
-		ItemID.CLUE_SCROLL_ELITE_19783,
-		ItemID.CLUE_SCROLL_ELITE_12113,
-		ItemID.CLUE_SCROLL_ELITE_12114,
-		ItemID.CLUE_SCROLL_ELITE_12115,
-		ItemID.CLUE_SCROLL_ELITE_12116,
-		ItemID.CLUE_SCROLL_ELITE_12117,
-		ItemID.CLUE_SCROLL_ELITE_12118,
-		ItemID.CLUE_SCROLL_ELITE_12119,
-		ItemID.CLUE_SCROLL_ELITE_12120,
-		ItemID.CLUE_SCROLL_ELITE_12121,
-		ItemID.CLUE_SCROLL_ELITE_12122,
-		ItemID.CLUE_SCROLL_ELITE_12123,
-		ItemID.CLUE_SCROLL_ELITE_12124,
-		ItemID.CLUE_SCROLL_ELITE_12125,
-		ItemID.CLUE_SCROLL_ELITE_12126,
-		ItemID.CLUE_SCROLL_ELITE_24773,
-		ItemID.CLUE_SCROLL_ELITE_26943,
-		ItemID.CLUE_SCROLL_ELITE_29855,
-		ItemID.CLUE_SCROLL_ELITE_29856,
-		ItemID.CHALLENGE_SCROLL_ELITE);
+	@Inject
+	@Getter
+	private ClueStates clueStates;
+
+	@Getter
+	@Inject
+	private TierStateSaveManager tierSaveManager;
+
+	private boolean profileChanged;
+
+	private int casketCooldown;
 
 	@Override
 	protected void startUp() throws Exception
 	{
 		overlayManager.add(infoOverlay);
-		clientThread.invoke(this::loadFromConfig);
+		tierSaveManager.loadStateFromConfig();
 	}
 
 	@Override
@@ -256,15 +133,37 @@ public class ClueSaverPlugin extends Plugin
 	{
 		overlayManager.remove(infoOverlay);
 		removeInfoBox();
+		tierSaveManager.saveStateToConfig();
 	}
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	public void onGameStateChanged(GameStateChanged event)
 	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN)
+		if (event.getGameState() == GameState.LOGIN_SCREEN)
 		{
-			clientThread.invoke(this::loadFromConfig);
+			tierSaveManager.saveStateToConfig();
 		}
+
+		if (event.getGameState() == GameState.LOGGED_IN)
+		{
+			if (profileChanged)
+			{
+				profileChanged = false;
+				tierSaveManager.loadStateFromConfig();
+			}
+		}
+	}
+
+	@Subscribe
+	public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
+	{
+		profileChanged = true;
+	}
+
+	@Subscribe(priority = 100)
+	private void onClientShutdown(ClientShutdown event)
+	{
+		tierSaveManager.saveStateToConfig();
 	}
 
 	@Subscribe
@@ -273,7 +172,7 @@ public class ClueSaverPlugin extends Plugin
 		if (event.getContainerId() == InventoryID.INVENTORY.getId())
 		{
 			checkBank();
-			checkContainer(event.getItemContainer(), ClueLocation.INVENTORY);
+			clueStates.checkContainer(event.getItemContainer(), ClueLocation.INVENTORY);
 		}
 	}
 
@@ -284,18 +183,64 @@ public class ClueSaverPlugin extends Plugin
 		{
 			checkBank();
 		}
+		else if (event.getGroupId() == InterfaceID.CLUESCROLL_REWARD)
+		{
+			checkReward();
+		}
+	}
+
+	private void checkBank()
+	{
+		ItemContainer bankContainer = client.getItemContainer(InventoryID.BANK);
+
+		if (bankContainer != null)
+		{
+			clueStates.checkContainer(bankContainer, ClueLocation.BANK);
+		}
+	}
+
+	// Consider scroll boxes in reward screen which count toward max
+	private void checkReward()
+	{
+		final Widget clueScrollReward = client.getWidget(ComponentID.CLUESCROLL_REWARD_ITEM_CONTAINER);
+
+		for (Widget widget : Objects.requireNonNull(clueScrollReward.getChildren()))
+		{
+			if (widget.getItemId() == ScrollBox.CLUE_SCROLL_BOX_MASTER)
+			{
+				clueStates.updateMasterReward(true);
+			}
+		}
+	}
+
+	@Subscribe
+	public void onWidgetClosed(WidgetClosed event)
+	{
+		if (event.getGroupId() == InterfaceID.BANK)
+		{
+			clueStates.updateWidgetClosed();
+		}
+		else if (event.getGroupId() == InterfaceID.CLUESCROLL_REWARD
+			&& clueStates.isMasterInReward())
+		{
+			clueStates.updateMasterReward(false);
+		}
 	}
 
 	@Subscribe
 	public void onMenuOptionClicked(MenuOptionClicked event)
 	{
-		// Track clue interactions to detect banking edge cases
-		if (eliteClues.contains(event.getItemId()))
+		// Track event options to detect banking edge cases
+		clueStates.trackBankEvents(event);
+
+		// If impling saver is active
+		if (event.isItemOp() && ImplingJars.itemIds.contains(event.getItemId()) && event.getMenuOption().equals("Loot"))
 		{
-			clueDeposited = event.getMenuOption().contains("Deposit");
+			// Consume Impling Loot events
+			saveImpling(event);
 		}
 
-		// If any clue method saver is active
+		// If elite clue method saver is active
 		if (config.saveGoldKeys()
 			|| config.saveDarkTotems()
 			|| config.saveTobRewardsChests()
@@ -305,139 +250,39 @@ public class ClueSaverPlugin extends Plugin
 			int objectId = objectIdForEntry(entry);
 
 			// Consume clue method events
-			if (objectId != -1 && isClueMethodToSave(objectId, entry.getOption()))
+			if (objectId != -1 && isEliteClueMethodToSave(objectId, entry.getOption()))
 			{
-				if (hasClue())
+				if (clueStates.maxedElites())
 				{
-					saveClue(event);
+					saveClue(event, ClueTier.ELITE);
+				}
+			}
+		}
+
+		// If master clue method saver is active
+		// Consume Casket Open events
+		if (event.isItemOp() && isMasterClueMethodToSave(event.getItemId()) && event.getMenuOption().equals("Open"))
+		{
+			if (clueStates.maxedMasters())
+			{
+				saveCasket(event);
+			}
+
+			if (config.casketCooldown())
+			{
+				if (casketCooldown == 0)
+				{
+					casketCooldown = 1;
+				}
+				else
+				{
+					event.consume();
 				}
 			}
 		}
 	}
 
-	@Subscribe
-	public void onMenuShouldLeftClick(MenuShouldLeftClick event)
-	{
-		MenuEntry[] menuEntries = client.getMenuEntries();
-		for (MenuEntry entry : menuEntries)
-		{
-			if (entry.getOption().equals("Deposit inventory"))
-			{
-				clueDeposited = true;
-			}
-		}
-	}
-
-	@Subscribe
-	public void onGameTick(GameTick event)
-	{
-		handleInfoBox();
-	}
-
-	@Provides
-	ClueSaverConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(ClueSaverConfig.class);
-	}
-
-	private void checkBank()
-	{
-		ItemContainer bankContainer = client.getItemContainer(InventoryID.BANK);
-
-		if (bankContainer != null)
-		{
-			checkContainer(bankContainer, ClueLocation.BANK);
-		}
-	}
-
-	private void checkContainer(ItemContainer container, ClueLocation location)
-	{
-		if (Arrays.stream(container.getItems()).anyMatch(item -> eliteClues.contains(item.getId())))
-		{
-			setEliteLocation(location);
-		}
-		// If clue was previously located in container and not found, update location
-		else if (eliteLocation.equals(location))
-		{
-			// Check if clue was banked
-			if (location.equals(ClueLocation.INVENTORY) && clueDeposited)
-			{
-				setEliteLocation(ClueLocation.BANK);
-			}
-			else
-			{
-				setEliteLocation(ClueLocation.UNKNOWN);
-			}
-		}
-	}
-
-	public String getCause()
-	{
-		if (!hasClue())
-		{
-			return null;
-		}
-
-		StringBuilder savingCause = new StringBuilder()
-			.append(ColorUtil.wrapWithColorTag("Clue Saver: ", Color.YELLOW))
-			.append(ColorUtil.wrapWithColorTag("active", Color.GREEN))
-			.append(ColorUtil.wrapWithColorTag("<br>Cause: ", Color.YELLOW))
-			.append("Elite clue ");
-		if (eliteLocation.equals(ClueLocation.BANK))
-		{
-			savingCause.append("in ").append(ColorUtil.wrapWithColorTag("bank", Color.RED));
-		}
-		else if (eliteLocation.equals(ClueLocation.INVENTORY))
-		{
-			savingCause.append("in ").append(ColorUtil.wrapWithColorTag("inventory", Color.RED));
-		}
-		return savingCause.toString();
-	}
-
-	private void handleInfoBox()
-	{
-		var isShowing = infoBox != null;
-		var shouldShow = config.showInfobox() && hasClue();
-
-		if (isShowing && !shouldShow)
-		{
-			removeInfoBox();
-		}
-		else if (shouldShow)
-		{
-			if (!isShowing)
-			{
-				infoBox = new InfoBox(itemManager.getImage(ItemID.CLUE_SCROLL_23814), this)
-				{
-					@Override
-					public String getText()
-					{
-						return "";
-					}
-
-					@Override
-					public Color getTextColor()
-					{
-						return null;
-					}
-				};
-			}
-
-			infoBox.setTooltip(getCause());
-
-			if (!isShowing)
-			{
-				infoBoxManager.addInfoBox(infoBox);
-			}
-		}
-	}
-
-	private boolean hasClue()
-	{
-		return !eliteLocation.equals(ClueLocation.UNKNOWN);
-	}
-
-	public boolean isClueMethodToSave(Integer objectId, String menuOption)
+	public boolean isEliteClueMethodToSave(Integer objectId, String menuOption)
 	{
 		// Save Dark totems
 		if (config.saveDarkTotems() && objectId == ObjectID.ALTAR_28900 && menuOption.equals("Use"))
@@ -446,7 +291,7 @@ public class ClueSaverPlugin extends Plugin
 		}
 
 		// Save Gold keys
-		if (config.saveGoldKeys() && goldChests.contains(objectId) && menuOption.equals("Open"))
+		if (config.saveGoldKeys() && GoldChest.getItemIds().contains(objectId) && menuOption.equals("Open"))
 		{
 			return true;
 		}
@@ -467,13 +312,103 @@ public class ClueSaverPlugin extends Plugin
 		return false;
 	}
 
-	private void loadFromConfig()
+	public boolean isMasterClueMethodToSave(Integer itemId)
 	{
-		ClueLocation loadedClueLocation = configManager.getRSProfileConfiguration("cluesaver", "clueLocation",
-			ClueLocation.class);
-		if (loadedClueLocation != null)
+		return (itemId == ItemID.REWARD_CASKET_EASY && config.saveEasyCaskets())
+			|| (itemId == ItemID.REWARD_CASKET_MEDIUM && config.saveMediumCaskets())
+			|| (itemId == ItemID.REWARD_CASKET_HARD && config.saveHardCaskets())
+			|| (itemId == ItemID.REWARD_CASKET_ELITE && config.saveEliteCaskets());
+	}
+
+	public boolean isImplingToSave(Integer itemId)
+	{
+		return (ImplingJars.beginnerIds.contains(itemId)
+			&& config.saveBeginnerImplings()
+			&& clueStates.maxedBeginners())
+			|| (ImplingJars.easyIds.contains(itemId)
+			&& config.saveEasyImplings()
+			&& clueStates.maxedEasies())
+			|| (ImplingJars.mediumIds.contains(itemId)
+			&& config.saveMediumImplings()
+			&& clueStates.maxedMediums())
+			|| (ImplingJars.hardIds.contains(itemId)
+			&& config.saveHardImplings()
+			&& clueStates.maxedHards())
+			|| (ImplingJars.eliteIds.contains(itemId)
+			&& config.saveEliteImplings()
+			&&  clueStates.maxedElites());
+	}
+
+	public boolean isItemIdMethodToSave(Integer itemId)
+	{
+		return (isMasterClueMethodToSave(itemId) || isImplingToSave(itemId));
+	}
+
+	@Subscribe
+	public void onMenuShouldLeftClick(MenuShouldLeftClick event)
+	{
+		MenuEntry[] menuEntries = client.getMenuEntries();
+		for (MenuEntry entry : menuEntries)
 		{
-			eliteLocation = loadedClueLocation;
+			if (entry.getOption().equals("Deposit inventory"))
+			{
+				clueStates.setDepositedState();
+			}
+		}
+	}
+
+	@Subscribe
+	public void onGameTick(GameTick event)
+	{
+		handleInfoBox();
+
+		if (config.casketCooldown())
+		{
+			casketCooldown = 0;
+		}
+	}
+
+	@Provides
+	ClueSaverConfig provideConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(ClueSaverConfig.class);
+	}
+
+	private void handleInfoBox()
+	{
+		var isShowing = infoBox != null;
+		var shouldShow = config.showInfobox() && clueStates.isSaving(config);
+
+		if (isShowing && !shouldShow)
+		{
+			removeInfoBox();
+		}
+		else if (shouldShow)
+		{
+			if (!isShowing)
+			{
+				infoBox = new InfoBox(itemManager.getImage(ItemID.MIMIC_SCROLL_CASE), this)
+				{
+					@Override
+					public String getText()
+					{
+						return "";
+					}
+
+					@Override
+					public Color getTextColor()
+					{
+						return null;
+					}
+				};
+			}
+
+			infoBox.setTooltip(getInfoboxSavingCauses());
+
+			if (!isShowing)
+			{
+				infoBoxManager.addInfoBox(infoBox);
+			}
 		}
 	}
 
@@ -486,21 +421,123 @@ public class ClueSaverPlugin extends Plugin
 		}
 	}
 
-	private void saveClue(MenuOptionClicked event)
+	public String getInfoboxSavingCauses()
+	{
+		StringBuilder savingCause = getActiveSavingText();
+
+		String beginnerCause = getTierSavingCause(ClueTier.BEGINNER, config.showBeginnerInfo());
+		if (beginnerCause != null) savingCause.append(beginnerCause).append("<br>");
+
+		String easyCause = getTierSavingCause(ClueTier.EASY, config.showEasyInfo());
+		if (easyCause != null) savingCause.append(easyCause).append("<br>");
+
+		String mediumCause = getTierSavingCause(ClueTier.MEDIUM, config.showMediumInfo());
+		if (mediumCause != null) savingCause.append(mediumCause).append("<br>");
+
+		String hardCause = getTierSavingCause(ClueTier.HARD, config.showHardInfo());
+		if (hardCause != null) savingCause.append(hardCause).append("<br>");
+
+		String eliteCause = getTierSavingCause(ClueTier.ELITE, config.showEliteInfo());
+		if (eliteCause != null) savingCause.append(eliteCause).append("<br>");
+
+		String masterCause = getTierSavingCause(ClueTier.MASTER, config.showMasterInfo());
+		if (masterCause != null) savingCause.append(masterCause);
+
+		return savingCause.toString();
+	}
+
+	public StringBuilder getActiveSavingText()
+	{
+		return new StringBuilder()
+			.append(ColorUtil.wrapWithColorTag("Clue Saver: ", Color.YELLOW))
+			.append(ColorUtil.wrapWithColorTag("active", Color.GREEN))
+			.append("<br>");
+	}
+
+	public String getTierSavingCause(ClueTier tier)
+	{
+		return getTierSavingCause(tier, false);
+	}
+
+	public String getTierSavingCause(ClueTier tier, boolean override)
+	{
+		ClueScrollState clueState = clueStates.getClueStateFromTier(tier);
+		if (clueState == null) return null;
+		ScrollBoxState boxState = clueStates.getBoxStateFromTier(tier);
+		if (boxState == null) return null;
+
+		if (!clueStates.maxedTier(clueState, boxState) && !override)
+		{
+			return null;
+		}
+
+		if (clueState.getLocation() == ClueLocation.UNKNOWN && boxState.getTotalCount() == 0) return null;
+
+		StringBuilder savingCause = new StringBuilder()
+			.append(ColorUtil.wrapWithColorTag(tier.toString(), Color.YELLOW))
+			.append(ColorUtil.wrapWithColorTag(": ", Color.YELLOW))
+			.append("<br>");
+
+		if (clueState.getLocation() != ClueLocation.UNKNOWN)
+		{
+			savingCause
+				.append("- Clue ")
+				.append("in ")
+				.append(ColorUtil.wrapWithColorTag(clueState.getLocation().toString(), Color.RED));
+		}
+		if (boxState.getTotalCount() > 0)
+		{
+			if (clueState.getLocation() != ClueLocation.UNKNOWN) savingCause.append("<br>");
+			if (config.separateBoxCounts())
+			{
+				savingCause
+					.append("- Inv Boxes: ")
+					.append(ColorUtil.wrapWithColorTag(String.valueOf(boxState.getInventoryCount()), Color.RED))
+					.append("<br>")
+					.append("- Bank Boxes: ")
+					.append(ColorUtil.wrapWithColorTag(String.valueOf(boxState.getBankCount()), Color.RED));
+			}
+			else
+			{
+				savingCause
+					.append("- Scroll Boxes: ")
+					.append(ColorUtil.wrapWithColorTag(String.valueOf(boxState.getTotalCount()), Color.RED));
+			}
+		}
+		return savingCause.toString();
+	}
+
+	private void saveClue(MenuOptionClicked event, ClueTier tier)
 	{
 		event.consume();
-		if (config.showChatMessage())
+		consumeChatMessage(tier);
+	}
+
+	private void saveCasket(MenuOptionClicked event)
+	{
+		int itemId = event.getItemId();
+		if (isMasterClueMethodToSave(itemId))
 		{
-			String chatMessage = getCause().replace("<br>", " ");
-			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", chatMessage, "");
+			saveClue(event, clueStates.getTierFromItemId(itemId));
 		}
 	}
 
-	private void setEliteLocation(ClueLocation location)
+	private void saveImpling(MenuOptionClicked event)
 	{
-		clueDeposited = false;
-		eliteLocation = location;
-		configManager.setRSProfileConfiguration("cluesaver", "eliteLocation", eliteLocation);
+		int itemId = event.getItemId();
+		if (isImplingToSave(itemId))
+		{
+			saveClue(event, clueStates.getTierFromItemId(itemId));
+		}
+	}
+
+	private void consumeChatMessage(ClueTier tier)
+	{
+		if (config.showChatMessage())
+		{
+			String chatMessage = getActiveSavingText() + getTierSavingCause(tier).replace("<br>", " ");
+			client.addChatMessage(ChatMessageType.GAMEMESSAGE, "", chatMessage, "");
+		}
 	}
 
 	TileObject findTileObject(int x, int y, int id)

@@ -24,17 +24,24 @@
  */
 package com.cluesaver;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-public enum ClueLocation
+@Getter
+@Data
+public class ClueScrollState
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
+	public ClueTier tier;
+	@Setter
+	public ClueLocation location;
+	@Setter
+	public boolean deposited;
 
-	@Override
-	public String toString()
+	public ClueScrollState(ClueTier tier)
 	{
-		return StringUtils.lowerCase(super.toString());
+		this.tier = tier;
+		this.location = ClueLocation.UNKNOWN;
+		this.deposited = false;
 	}
 }

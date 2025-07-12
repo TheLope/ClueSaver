@@ -22,19 +22,21 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.cluesaver;
+package com.cluesaver.ids;
 
-import org.apache.commons.lang3.StringUtils;
-
-public enum ClueLocation
+public class ScrollCase
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
-
-	@Override
-	public String toString()
-	{
-		return StringUtils.lowerCase(super.toString());
-	}
+	public static final int SCROLL_CASE_BEGINNER_MINOR = 16565;
+	public static final int SCROLL_CASE_BEGINNER_MAJOR = 16566;
+	public static final int SCROLL_CASE_EASY_MINOR = 16567;
+	public static final int SCROLL_CASE_EASY_MAJOR = 16586;
+	public static final int SCROLL_CASE_MEDIUM_MINOR = 16587;
+	public static final int SCROLL_CASE_MEDIUM_MAJOR = 16588;
+	public static final int SCROLL_CASE_HARD_MINOR = 16589;
+	public static final int SCROLL_CASE_HARD_MAJOR = 16590;
+	public static final int SCROLL_CASE_ELITE_MINOR = 16591;
+	public static final int SCROLL_CASE_ELITE_MAJOR = 16592;
+	public static final int SCROLL_CASE_MASTER_MINOR = 16593;
+	public static final int SCROLL_CASE_MASTER_MAJOR = 16594;
+	public static final int SCROLL_CASE_MIMIC = 16595;
 }

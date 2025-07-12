@@ -24,17 +24,36 @@
  */
 package com.cluesaver;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-public enum ClueLocation
+@Getter
+@Setter
+@Data
+public class ScrollBoxState
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
+	public ClueTier tier;
+	public int inventoryCount;
+	public int prevInventoryCount;
+	public int bankCount;
+	public boolean deposited;
+	public boolean withdrawn;
+	public boolean inReward;
 
-	@Override
-	public String toString()
+	public ScrollBoxState(ClueTier tier)
 	{
-		return StringUtils.lowerCase(super.toString());
+		this.tier = tier;
+		this.inventoryCount = 0;
+		this.prevInventoryCount = -1;
+		this.bankCount = 0;
+		this.deposited = false;
+		this.withdrawn = false;
+		this.inReward = false;
+	}
+
+	public int getTotalCount()
+	{
+		return inventoryCount + bankCount;
 	}
 }

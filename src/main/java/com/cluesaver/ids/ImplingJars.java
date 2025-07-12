@@ -22,19 +22,55 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.cluesaver;
+package com.cluesaver.ids;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import java.util.List;
+import lombok.Getter;
+import net.runelite.api.ItemID;
 
-public enum ClueLocation
+@Getter
+public class ImplingJars
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
+	@Getter
+	public static final List<Integer> itemIds = Arrays.asList(
+		ItemID.BABY_IMPLING_JAR,
+		ItemID.YOUNG_IMPLING_JAR,
+		ItemID.GOURMET_IMPLING_JAR,
+		ItemID.EARTH_IMPLING_JAR,
+		ItemID.ESSENCE_IMPLING_JAR,
+		ItemID.ECLECTIC_IMPLING_JAR,
+		ItemID.NATURE_IMPLING_JAR,
+		ItemID.MAGPIE_IMPLING_JAR,
+		ItemID.NINJA_IMPLING_JAR,
+		ItemID.CRYSTAL_IMPLING_JAR,
+		ItemID.DRAGON_IMPLING_JAR);
 
-	@Override
-	public String toString()
-	{
-		return StringUtils.lowerCase(super.toString());
-	}
+	@Getter
+	public static final List<Integer> beginnerIds = Arrays.asList(
+		ItemID.BABY_IMPLING_JAR,
+		ItemID.YOUNG_IMPLING_JAR);
+
+	@Getter
+	public static final List<Integer> easyIds = Arrays.asList(
+		ItemID.BABY_IMPLING_JAR,
+		ItemID.YOUNG_IMPLING_JAR,
+		ItemID.GOURMET_IMPLING_JAR);
+
+	@Getter
+	public static final List<Integer> mediumIds = Arrays.asList(
+		ItemID.EARTH_IMPLING_JAR,
+		ItemID.ESSENCE_IMPLING_JAR,
+		ItemID.ECLECTIC_IMPLING_JAR);
+
+	@Getter
+	public static final List<Integer> hardIds = Arrays.asList(
+		ItemID.NATURE_IMPLING_JAR,
+		ItemID.MAGPIE_IMPLING_JAR,
+		ItemID.NINJA_IMPLING_JAR);
+
+	@Getter
+	public static final List<Integer> eliteIds = Arrays.asList(
+		ItemID.CRYSTAL_IMPLING_JAR,
+		ItemID.DRAGON_IMPLING_JAR);
 }
