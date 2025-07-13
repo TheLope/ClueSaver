@@ -62,6 +62,10 @@ import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.chat.ChatColorType;
+import net.runelite.client.chat.ChatMessageBuilder;
+import net.runelite.client.chat.ChatMessageManager;
+import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ClientShutdown;
@@ -69,6 +73,7 @@ import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.PluginManager;
 import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
@@ -101,6 +106,12 @@ public class ClueSaverPlugin extends Plugin
 	private OverlayManager overlayManager;
 
 	@Inject
+	PluginManager pluginManager;
+
+	@Inject
+	private ChatMessageManager chatMessageManager;
+
+	@Inject
 	private ClueSaverOverlay infoOverlay;
 
 	@Inject
@@ -118,14 +129,15 @@ public class ClueSaverPlugin extends Plugin
 	private TierStateSaveManager tierSaveManager;
 
 	private boolean profileChanged;
-
 	private int casketCooldown;
+	private boolean loggingIn;
 
 	@Override
 	protected void startUp() throws Exception
 	{
 		overlayManager.add(infoOverlay);
 		tierSaveManager.loadStateFromConfig();
+		loggingIn = true;
 	}
 
 	@Override
@@ -151,6 +163,11 @@ public class ClueSaverPlugin extends Plugin
 				profileChanged = false;
 				tierSaveManager.loadStateFromConfig();
 			}
+		}
+
+		if (event.getGameState() == GameState.LOGGING_IN)
+		{
+			loggingIn = true;
 		}
 	}
 
@@ -366,6 +383,13 @@ public class ClueSaverPlugin extends Plugin
 		{
 			casketCooldown = 0;
 		}
+
+		if (loggingIn)
+		{
+			loggingIn = false;
+			notifyPluginUninstall("ImplingSaver");
+			notifyPluginUninstall("CasketSaver");
+		}
 	}
 
 	@Provides
@@ -529,6 +553,28 @@ public class ClueSaverPlugin extends Plugin
 		{
 			saveClue(event, clueStates.getTierFromItemId(itemId));
 		}
+	}
+
+	private void notifyPluginUninstall(String pluginName)
+	{
+		if (pluginManager.getPlugins().stream().anyMatch(plugin -> plugin.getName().equals(pluginName)))
+		{
+			sendChatConsoleMessage(pluginName + " has been integrated into Clue Saver. You may now uninstall " + pluginName);
+		}
+	}
+
+	private void sendChatConsoleMessage(String chatMessage)
+	{
+		final String message = new ChatMessageBuilder()
+			.append(ChatColorType.HIGHLIGHT)
+			.append(chatMessage)
+			.build();
+
+		chatMessageManager.queue(
+			QueuedMessage.builder()
+				.type(ChatMessageType.CONSOLE)
+				.runeLiteFormattedMessage(message)
+				.build());
 	}
 
 	private void consumeChatMessage(ClueTier tier)
