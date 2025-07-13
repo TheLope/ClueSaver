@@ -96,11 +96,23 @@ public interface ClueSaverConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "showUI",
+		name = "Show clue UI",
+		description = "Provides a collapsible UI display on the right for clue tracking",
+		section = debugSection,
+		position = 1
+	)
+	default boolean showUI()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "showBeginnerInfo",
 		name = "Show beginner info",
 		description = "Show saving state for beginner clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 1
+		position = 2
 	)
 	default boolean showBeginnerInfo()
 	{
@@ -112,7 +124,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show easy info",
 		description = "Show saving state for easy clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 2
+		position = 3
 	)
 	default boolean showEasyInfo()
 	{
@@ -124,7 +136,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show medium info",
 		description = "Show saving state for medium clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 3
+		position = 4
 	)
 	default boolean showMediumInfo()
 	{
@@ -136,7 +148,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show hard info",
 		description = "Show saving state for hard clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 4
+		position = 5
 	)
 	default boolean showHardInfo()
 	{
@@ -148,7 +160,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show elite info",
 		description = "Show saving state for elite clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 5
+		position = 6
 	)
 	default boolean showEliteInfo()
 	{
@@ -160,7 +172,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show master info",
 		description = "Show saving state for master clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 5
+		position = 7
 	)
 	default boolean showMasterInfo()
 	{
