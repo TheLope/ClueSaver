@@ -22,19 +22,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.cluesaver;
+package com.cluesaver.ids;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Arrays;
+import java.util.List;
+import lombok.Getter;
+import net.runelite.api.ObjectID;
 
-public enum ClueLocation
+public class GoldChest
 {
-	BANK,
-	INVENTORY,
-	UNKNOWN;
-
-	@Override
-	public String toString()
-	{
-		return StringUtils.lowerCase(super.toString());
-	}
+	@Getter
+	public static final List<Integer> itemIds = Arrays.asList(
+		ObjectID.GOLD_CHEST, 		// 41212
+		ObjectID.GOLD_CHEST_41213, 	// 41213
+		ObjectID.GOLD_CHEST_41214, 	// 41214
+		ObjectID.GOLD_CHEST_41215, 	// 41215
+		ObjectID.GOLD_CHEST_41216); // 41216
 }
