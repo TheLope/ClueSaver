@@ -130,6 +130,11 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			}
 		}
 
+		if (visibleTierCount == 0)
+		{
+			return null;
+		}
+
 		BufferedImage firstClueImage = getClueImage(ClueTier.values()[0]);
 		int clueImageHeight = firstClueImage != null ? firstClueImage.getHeight() : 0;
 		int padding = 2;
