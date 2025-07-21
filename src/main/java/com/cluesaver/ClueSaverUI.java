@@ -232,9 +232,9 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		final int buttonUIX = closedUIX + closedUIImage.getWidth() +
 			(isExpanded ? 45 : 0);
 		final int buttonUIY = closedUIY + 8;
-		buttonBounds = new Rectangle(buttonUIX, buttonUIY,
-			buttonUIImage.getWidth(), buttonUIImage.getHeight());
 		BufferedImage buttonToDraw = isButtonHovered ? buttonUIHoveredImage : buttonUIImage;
+		buttonBounds = new Rectangle(buttonUIX, buttonUIY,
+			buttonToDraw.getWidth(), buttonToDraw.getHeight());
 		graphics.drawImage(buttonToDraw, buttonUIX, buttonUIY, null);
 
 		return null;
