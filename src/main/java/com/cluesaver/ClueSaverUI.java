@@ -1,3 +1,28 @@
+/*
+ * Copyright (c) 2025, lalochazia <https://github.com/lalochazia>
+ * Copyright (c) 2025, TheLope <https://github.com/TheLope>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.cluesaver;
 
 import java.awt.Dimension;
@@ -6,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.inject.Inject;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.client.callback.ClientThread;
@@ -16,7 +42,8 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.util.ImageUtil;
 
 @Slf4j
-public class ClueSaverUI extends Overlay implements MouseListener {
+public class ClueSaverUI extends Overlay implements MouseListener
+{
 	private final Client client;
 	private final ClientThread clientThread;
 	private final ClueSaverConfig config;
@@ -34,7 +61,6 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 	private Rectangle eliteIconBounds;
 	private Rectangle masterIconBounds;
 	private final BufferedImage closedUIImage;
-	private final BufferedImage expandedUIImage;
 	private final BufferedImage buttonUIImage;
 	private final BufferedImage buttonUIHoveredImage;
 	private final BufferedImage clueScrollBeginnerImage;
@@ -47,14 +73,15 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 	private final BufferedImage pipGreenImage;
 	private final BufferedImage pipOrangeImage;
 	private final BufferedImage pipRedImage;
-	private BufferedImage activeClueSaver;
-	private BufferedImage invIcon;
-	private BufferedImage bankIcon;
+	private final BufferedImage activeClueSaver;
+	private final BufferedImage invIcon;
+	private final BufferedImage bankIcon;
 
 	@Inject
 	public ClueSaverUI(Client client, ClientThread clientThread,
 					   ClueSaverUtils clueSaverUtils, ClueSaverPlugin clueSaverPlugin,
-					   ClueStates clueStates, ClueSaverConfig config) {
+					   ClueStates clueStates, ClueSaverConfig config)
+	{
 		this.config = config;
 		this.client = client;
 		this.clientThread = clientThread;
@@ -84,10 +111,10 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics) {
-
-		if (!shouldDraw || closedUIImage == null || buttonUIImage == null ||
-			buttonUIHoveredImage == null || expandedUIImage == null) {
+	public Dimension render(Graphics2D graphics)
+	{
+		if (!shouldDraw || closedUIImage == null || buttonUIImage == null ||  buttonUIHoveredImage == null)
+		{
 			return null;
 		}
 
@@ -97,8 +124,10 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		}
 
 		int visibleTierCount = 0;
-		for (ClueTier tier : ClueTier.values()) {
-			if (shouldShowTier(tier)) {
+		for (ClueTier tier : ClueTier.values())
+		{
+			if (shouldShowTier(tier))
+			{
 				visibleTierCount++;
 			}
 		}
@@ -118,22 +147,26 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 			closedUIImage.getWidth(), closedUIImage.getHeight(),
 			null);
 
-		for (ClueTier tier : ClueTier.values()) {
-			if (!shouldShowTier(tier)) {
+		for (ClueTier tier : ClueTier.values())
+		{
+			if (!shouldShowTier(tier))
+			{
 				continue;
 			}
 		}
 
-		if (isExpanded) {
+		if (isExpanded)
+		{
 			final int expandedUIX = closedUIX + closedUIImage.getWidth();
-			final int expandedUIY = closedUIY;
 			final int startX = expandedUIX + 4;
-			final int startY = expandedUIY + 3;
+			final int startY = closedUIY + 3;
 
 			int currentY = startY;
 
-			for (ClueTier tier : ClueTier.values()) {
-				if (!shouldShowTier(tier)) {
+			for (ClueTier tier : ClueTier.values())
+			{
+				if (!shouldShowTier(tier))
+				{
 					continue;
 				}
 
@@ -145,13 +178,15 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 
 				TierStats stats = calculateTierStats(tier);
 
-				if (stats.hasClueInInventory() && invIcon != null) {
+				if (stats.hasClueInInventory() && invIcon != null)
+				{
 					int invIconX = startX + clueImage.getWidth() - invIcon.getWidth();
 					int invIconY = currentY + clueImage.getHeight() - invIcon.getHeight();
 					graphics.drawImage(invIcon, invIconX, invIconY, null);
 				}
 
-				if (stats.hasClueInBank() && bankIcon != null) {
+				if (stats.hasClueInBank() && bankIcon != null)
+				{
 					int bankIconX = startX + clueImage.getWidth() - bankIcon.getWidth();
 					int bankIconY = currentY + clueImage.getHeight() - bankIcon.getHeight();
 					graphics.drawImage(bankIcon, bankIconX, bankIconY, null);
@@ -160,19 +195,28 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 				int pipX = startX - 5;
 				int pipStartY = currentY + clueImage.getHeight();
 
-				if (stats.getTotalBoxes() == stats.getMaxClueCount() && activeClueSaver != null) {
+				if (stats.getTotalBoxes() == stats.getMaxClueCount() && activeClueSaver != null)
+				{
 					graphics.drawImage(activeClueSaver, startX, currentY, null);
 				}
 
-				for (int pip = stats.getMaxClueCount() - 1; pip >= 0; pip--) {
+				for (int pip = stats.getMaxClueCount() - 1; pip >= 0; pip--)
+				{
 					int pipY = pipStartY - ((pip + 1) * (pipImage.getHeight() - 1)) - 6;
-					if (stats.getTotalBoxes() == stats.getMaxClueCount()) {
+					if (stats.getTotalBoxes() == stats.getMaxClueCount())
+					{
 						graphics.drawImage(pipRedImage, pipX, pipY, null);
-					} else if (stats.getMaxClueCount() - stats.getTotalBoxes() == 1 && pip < stats.getTotalBoxes()) {
+					}
+					else if (stats.getMaxClueCount() - stats.getTotalBoxes() == 1 && pip < stats.getTotalBoxes())
+					{
 						graphics.drawImage(pipOrangeImage, pipX, pipY, null);
-					} else if (pip < stats.getTotalBoxes()) {
+					}
+					else if (pip < stats.getTotalBoxes())
+					{
 						graphics.drawImage(pipGreenImage, pipX, pipY, null);
-					} else {
+					}
+					else
+					{
 						graphics.drawImage(pipImage, pipX, pipY, null);
 					}
 				}
@@ -193,9 +237,11 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		return null;
 	}
 
-	private void updateIconBounds(ClueTier tier, int x, int y, BufferedImage image) {
+	private void updateIconBounds(ClueTier tier, int x, int y, BufferedImage image)
+	{
 		Rectangle bounds = new Rectangle(x, y, image.getWidth(), image.getHeight());
-		switch (tier) {
+		switch (tier)
+		{
 			case BEGINNER:
 				beginnerIconBounds = bounds;
 				break;
@@ -217,8 +263,10 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		}
 	}
 
-	private Rectangle getIconBounds(ClueTier tier) {
-		switch (tier) {
+	private Rectangle getIconBounds(ClueTier tier)
+	{
+		switch (tier)
+		{
 			case BEGINNER: return beginnerIconBounds;
 			case EASY: return easyIconBounds;
 			case MEDIUM: return mediumIconBounds;
@@ -229,8 +277,10 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		}
 	}
 
-	private BufferedImage getClueImage(ClueTier tier) {
-		switch (tier) {
+	private BufferedImage getClueImage(ClueTier tier)
+	{
+		switch (tier)
+		{
 			case BEGINNER: return clueScrollBeginnerImage;
 			case EASY: return clueScrollEasyImage;
 			case MEDIUM: return clueScrollMediumImage;
@@ -241,87 +291,107 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		}
 	}
 
-	private static class TierStats {
+	private static class TierStats
+	{
+		@Getter
 		private final int totalBoxes;
+		@Getter
 		private final int maxClueCount;
 		private final boolean hasClueInInventory;
 		private final boolean hasClueInBank;
 
-		public TierStats(int totalBoxes, int maxClueCount, boolean hasClueInInventory, boolean hasClueInBank) {
+		public TierStats(int totalBoxes, int maxClueCount, boolean hasClueInInventory, boolean hasClueInBank)
+		{
 			this.totalBoxes = totalBoxes;
 			this.maxClueCount = maxClueCount;
 			this.hasClueInInventory = hasClueInInventory;
 			this.hasClueInBank = hasClueInBank;
 		}
 
-		public int getTotalBoxes() {
-			return totalBoxes;
-		}
-
-		public int getMaxClueCount() {
-			return maxClueCount;
-		}
-
-		public boolean hasClueInInventory() {
+		public boolean hasClueInInventory()
+		{
 			return hasClueInInventory;
 		}
 
-		public boolean hasClueInBank() {
+		public boolean hasClueInBank()
+		{
 			return hasClueInBank;
 		}
 	}
 
-	private TierStats calculateTierStats(ClueTier tier) {
+	private TierStats calculateTierStats(ClueTier tier)
+	{
 		int totalBoxes = 0;
 		boolean hasClueInInventory = false;
 		boolean hasClueInBank = false;
 
 		String savingCause = clueSaverPlugin.getTierSavingCause(tier, true);
-		if (savingCause != null) {
+		if (savingCause != null)
+		{
 			String cleanedCause = savingCause
 				.replaceAll("<col=[^>]+>", "")
 				.replaceAll("</col>", "");
 
 			String[] parts = cleanedCause.split(" \\| ");
-			for (String part : parts) {
-				if (config.separateBoxCounts()) {
+			for (String part : parts)
+			{
+				if (config.separateBoxCounts())
+				{
 					String[] lines = part.split("<br>");
-					for (String line : lines) {
+					for (String line : lines)
+					{
 						line = line.trim();
-						if (line.contains("Inv Boxes:")) {
-							try {
+						if (line.contains("Inv Boxes:"))
+						{
+							try
+							{
 								String countStr = line.substring(line.indexOf("Inv Boxes:") + "Inv Boxes:".length()).trim();
 								totalBoxes += Integer.parseInt(countStr);
-							} catch (Exception e) {
+							} catch (Exception e)
+							{
 							}
 						}
-						if (line.contains("Bank Boxes:")) {
-							try {
+						if (line.contains("Bank Boxes:"))
+						{
+							try
+							{
 								String countStr = line.substring(line.indexOf("Bank Boxes:") + "Bank Boxes:".length()).trim();
 								totalBoxes += Integer.parseInt(countStr);
-							} catch (Exception e) {
+							} catch (Exception e)
+							{
 							}
 						}
-						if (line.contains("Clue in inventory")) {
+						if (line.contains("Clue in inventory"))
+						{
 							hasClueInInventory = true;
 							totalBoxes++;
-						} else if (line.contains("Clue in bank")) {
+						}
+						else if (line.contains("Clue in bank"))
+						{
 							hasClueInBank = true;
 							totalBoxes++;
 						}
 					}
-				} else {
-					if (part.contains("Scroll Boxes:")) {
-						try {
+				}
+				else
+				{
+					if (part.contains("Scroll Boxes:"))
+					{
+						try
+						{
 							String countStr = part.substring(part.indexOf("Scroll Boxes:") + "Scroll Boxes:".length()).trim();
 							totalBoxes = Integer.parseInt(countStr);
-						} catch (Exception e) {
+						} catch (Exception e)
+						{
 						}
 					}
-					if (part.contains("Clue in inventory")) {
+					if (part.contains("Clue in inventory"))
+					{
 						hasClueInInventory = true;
 						totalBoxes++;
-					} else if (part.contains("Clue in bank")) {
+					}
+					else if (part.contains("Clue in bank"))
+					{
 						hasClueInBank = true;
 						totalBoxes++;
 					}
@@ -332,8 +402,10 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		return new TierStats(totalBoxes, maxClueCount, hasClueInInventory, hasClueInBank);
 	}
 
-	private boolean shouldShowTier(ClueTier tier) {
-		switch (tier) {
+	private boolean shouldShowTier(ClueTier tier)
+	{
+		switch (tier)
+		{
 			case BEGINNER:
 				return config.showBeginnerInfo();
 			case EASY:
@@ -351,13 +423,16 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 		}
 	}
 
-	public void setVisible(boolean visible) {
+	public void setVisible(boolean visible)
+	{
 		this.shouldDraw = visible;
 	}
 
 	@Override
-	public MouseEvent mouseClicked(MouseEvent e) {
-		if (buttonBounds != null && buttonBounds.contains(e.getPoint())) {
+	public MouseEvent mouseClicked(MouseEvent e)
+	{
+		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
+		{
 			isExpanded = !isExpanded;
 			e.consume();
 		}
@@ -365,24 +440,30 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 	}
 
 	@Override
-	public MouseEvent mousePressed(MouseEvent e) {
-		if (buttonBounds != null && buttonBounds.contains(e.getPoint())) {
+	public MouseEvent mousePressed(MouseEvent e)
+	{
+		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
+		{
 			e.consume();
 		}
 		return e;
 	}
 
 	@Override
-	public MouseEvent mouseReleased(MouseEvent e) {
+	public MouseEvent mouseReleased(MouseEvent e)
+	{
 		return e;
 	}
 
 	@Override
-	public MouseEvent mouseMoved(MouseEvent e) {
-		if (buttonBounds != null) {
+	public MouseEvent mouseMoved(MouseEvent e)
+	{
+		if (buttonBounds != null)
+		{
 			boolean wasHovered = isButtonHovered;
 			isButtonHovered = buttonBounds.contains(e.getPoint());
-			if (wasHovered != isButtonHovered) {
+			if (wasHovered != isButtonHovered)
+			{
 				e.consume();
 			}
 		}
@@ -390,18 +471,21 @@ public class ClueSaverUI extends Overlay implements MouseListener {
 	}
 
 	@Override
-	public MouseEvent mouseEntered(MouseEvent e) {
+	public MouseEvent mouseEntered(MouseEvent e)
+	{
 		return e;
 	}
 
 	@Override
-	public MouseEvent mouseExited(MouseEvent e) {
+	public MouseEvent mouseExited(MouseEvent e)
+	{
 		isButtonHovered = false;
 		return e;
 	}
 
 	@Override
-	public MouseEvent mouseDragged(MouseEvent e) {
+	public MouseEvent mouseDragged(MouseEvent e)
+	{
 		return e;
 	}
 }
