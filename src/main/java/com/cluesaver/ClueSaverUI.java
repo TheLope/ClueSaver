@@ -49,7 +49,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private final ClueSaverConfig config;
 	private final ClueSaverUtils clueSaverUtils;
 	private final ClueSaverPlugin clueSaverPlugin;
-	private final ClueStates clueStates;
 	private boolean shouldDraw = false;
 	private boolean isButtonHovered = false;
 	private boolean isExpanded = false;
@@ -80,14 +79,13 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Inject
 	public ClueSaverUI(Client client, ClientThread clientThread,
 					   ClueSaverUtils clueSaverUtils, ClueSaverPlugin clueSaverPlugin,
-					   ClueStates clueStates, ClueSaverConfig config)
+					   ClueSaverConfig config)
 	{
 		this.config = config;
 		this.client = client;
 		this.clientThread = clientThread;
 		this.clueSaverUtils = clueSaverUtils;
 		this.clueSaverPlugin = clueSaverPlugin;
-		this.clueStates = clueStates;
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
 		setPriority(100);
@@ -347,8 +345,10 @@ public class ClueSaverUI extends Overlay implements MouseListener
 							{
 								String countStr = line.substring(line.indexOf("Inv Boxes:") + "Inv Boxes:".length()).trim();
 								totalBoxes += Integer.parseInt(countStr);
-							} catch (Exception e)
+							}
+							catch (Exception e)
 							{
+								log.debug("Error processing Inv Boxes", e);
 							}
 						}
 						if (line.contains("Bank Boxes:"))
@@ -357,8 +357,10 @@ public class ClueSaverUI extends Overlay implements MouseListener
 							{
 								String countStr = line.substring(line.indexOf("Bank Boxes:") + "Bank Boxes:".length()).trim();
 								totalBoxes += Integer.parseInt(countStr);
-							} catch (Exception e)
+							}
+							catch (Exception e)
 							{
+								log.debug("Error processing Bank Boxes", e);
 							}
 						}
 						if (line.contains("Clue in inventory"))
@@ -381,8 +383,10 @@ public class ClueSaverUI extends Overlay implements MouseListener
 						{
 							String countStr = part.substring(part.indexOf("Scroll Boxes:") + "Scroll Boxes:".length()).trim();
 							totalBoxes = Integer.parseInt(countStr);
-						} catch (Exception e)
+						}
+						catch (Exception e)
 						{
+							log.debug("Error processing Scroll Boxes", e);
 						}
 					}
 					if (part.contains("Clue in inventory"))
@@ -407,17 +411,17 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		switch (tier)
 		{
 			case BEGINNER:
-				return config.showBeginnerInfo();
+				return clueSaverPlugin.getClueStates().maxedBeginners() || config.showBeginnerInfo();
 			case EASY:
-				return config.showEasyInfo();
+				return clueSaverPlugin.getClueStates().maxedEasies() || config.showEasyInfo();
 			case MEDIUM:
-				return config.showMediumInfo();
+				return clueSaverPlugin.getClueStates().maxedMediums() || config.showMediumInfo();
 			case HARD:
-				return config.showHardInfo();
+				return clueSaverPlugin.getClueStates().maxedHards() || config.showHardInfo();
 			case ELITE:
-				return config.showEliteInfo();
+				return clueSaverPlugin.getClueStates().maxedElites() || config.showEliteInfo();
 			case MASTER:
-				return config.showMasterInfo();
+				return clueSaverPlugin.getClueStates().maxedMasters() || config.showMasterInfo();
 			default:
 				return false;
 		}
