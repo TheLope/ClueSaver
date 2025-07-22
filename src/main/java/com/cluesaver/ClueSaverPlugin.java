@@ -498,6 +498,7 @@ public class ClueSaverPlugin extends Plugin
 
 	public String getTierSavingCause(ClueTier tier, boolean override)
 	{
+		if (!isEnabledTier(tier)) return null;
 		ClueScrollState clueState = clueStates.getClueStateFromTier(tier);
 		if (clueState == null) return null;
 		ScrollBoxState boxState = clueStates.getBoxStateFromTier(tier);
@@ -544,10 +545,24 @@ public class ClueSaverPlugin extends Plugin
 		return savingCause.toString();
 	}
 
+	private boolean isEnabledTier(ClueTier tier)
+	{
+		if (tier == ClueTier.BEGINNER) return config.beginnerEnabled();
+		if (tier == ClueTier.EASY) return config.easyEnabled();
+		if (tier == ClueTier.MEDIUM) return config.mediumEnabled();
+		if (tier == ClueTier.HARD) return config.hardEnabled();
+		if (tier == ClueTier.ELITE) return config.eliteEnabled();
+		if (tier == ClueTier.MASTER) return config.masterEnabled();
+		return false;
+	}
+
 	private void saveClue(MenuOptionClicked event, ClueTier tier)
 	{
-		event.consume();
-		consumeChatMessage(tier);
+		if (isEnabledTier(tier))
+		{
+			event.consume();
+			consumeChatMessage(tier);
+		}
 	}
 
 	private void saveCasket(MenuOptionClicked event)
