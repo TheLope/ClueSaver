@@ -98,7 +98,7 @@ public interface ClueSaverConfig extends Config
 	@ConfigItem(
 		keyName = "separateBoxCounts",
 		name = "Separate scroll box counts",
-		description = "Show scroll box count explicitly for inventory and bank",
+		description = "Show separate scroll box count for inventory and bank (infobox and chat overlays)",
 		section = debugSection,
 		position = 0
 	)
@@ -109,8 +109,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showBeginnerInfo",
-		name = "Show beginner info",
-		description = "Show saving state for beginner clues regardless of if clue saver if active",
+		name = "Always show beginner state",
+		description = "Always show saving state for beginner clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 1
 	)
@@ -121,8 +121,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showEasyInfo",
-		name = "Show easy info",
-		description = "Show saving state for easy clues regardless of if clue saver if active",
+		name = "Always show easy state",
+		description = "Always show saving state for easy clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 2
 	)
@@ -133,8 +133,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showMediumInfo",
-		name = "Show medium info",
-		description = "Show saving state for medium clues regardless of if clue saver if active",
+		name = "Always show medium state",
+		description = "Always show saving state for medium clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 3
 	)
@@ -145,8 +145,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showHardInfo",
-		name = "Show hard info",
-		description = "Show saving state for hard clues regardless of if clue saver if active",
+		name = "Always show hard state",
+		description = "Always show saving state for hard clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 4
 	)
@@ -157,8 +157,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showEliteInfo",
-		name = "Show elite info",
-		description = "Show saving state for elite clues regardless of if clue saver if active",
+		name = "Always show elite state",
+		description = "Always show saving state for elite clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 5
 	)
@@ -169,8 +169,8 @@ public interface ClueSaverConfig extends Config
 
 	@ConfigItem(
 		keyName = "showMasterInfo",
-		name = "Show master info",
-		description = "Show saving state for master clues regardless of if clue saver if active",
+		name = "Always show master state",
+		description = "Always show saving state for master clues in UI and infobox (if enabled)",
 		section = debugSection,
 		position = 6
 	)
@@ -361,6 +361,81 @@ public interface ClueSaverConfig extends Config
 		position = 4
 	)
 	default boolean saveEliteCaskets()
+	{
+		return true;
+	}
+
+	@ConfigSection(name = "Tier Toggles", description = "Options to enable particular clue tiers", position = 8)
+	String tierTogglesSection = "Tier Toggles";
+
+	@ConfigItem(
+		keyName = "beginnerEnabled",
+		name = "Beginner clues",
+		description = "Beginner clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 0
+	)
+	default boolean beginnerEnabled()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "easyEnabled",
+		name = "Easy clues",
+		description = "Easy clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 1
+	)
+	default boolean easyEnabled()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "mediumEnabled",
+		name = "Medium clues",
+		description = "Medium clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 2
+	)
+	default boolean mediumEnabled()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "hardEnabled",
+		name = "Hard clues",
+		description = "Hard clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 3
+	)
+	default boolean hardEnabled()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "eliteEnabled",
+		name = "Elite clues",
+		description = "Elite clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 4
+	)
+	default boolean eliteEnabled()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "masterEnabled",
+		name = "Master clues",
+		description = "Master clues are saved and displayed in overlays",
+		section = tierTogglesSection,
+		position = 5
+	)
+	default boolean masterEnabled()
 	{
 		return true;
 	}
