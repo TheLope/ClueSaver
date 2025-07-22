@@ -78,6 +78,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import net.runelite.client.ui.overlay.infobox.InfoBox;
 import net.runelite.client.ui.overlay.infobox.InfoBoxManager;
 import net.runelite.client.util.ColorUtil;
+import net.runelite.client.input.MouseManager;
 
 @Slf4j
 @PluginDescriptor(
@@ -121,12 +122,18 @@ public class ClueSaverPlugin extends Plugin
 	private ClueSaverUtils scrollBoxUtils;
 
 	@Inject
+	private ClueSaverUI clueSaverUI;
+
+	@Inject
 	@Getter
 	private ClueStates clueStates;
 
 	@Getter
 	@Inject
 	private TierStateSaveManager tierSaveManager;
+
+	@Inject
+	private MouseManager mouseManager;
 
 	private boolean profileChanged;
 	private int casketCooldown;
@@ -137,6 +144,9 @@ public class ClueSaverPlugin extends Plugin
 	{
 		overlayManager.add(infoOverlay);
 		tierSaveManager.loadStateFromConfig();
+		overlayManager.add(clueSaverUI);
+		clueSaverUI.setVisible(true);
+		mouseManager.registerMouseListener(clueSaverUI);
 		loggingIn = true;
 	}
 
@@ -146,6 +156,9 @@ public class ClueSaverPlugin extends Plugin
 		overlayManager.remove(infoOverlay);
 		removeInfoBox();
 		tierSaveManager.saveStateToConfig();
+		overlayManager.remove(clueSaverUI);
+		clueSaverUI.setVisible(false);
+		mouseManager.unregisterMouseListener(clueSaverUI);
 	}
 
 	@Subscribe

@@ -15,6 +15,16 @@ The "Show tooltip" toggle will provide a tooltip message when hovering over a me
 
 <img width="362" height="273" alt="G3HqRIn" src="https://github.com/user-attachments/assets/c18fe2f8-df16-4a5f-892d-a25dad1524d9" />
 
+
+## User Interface
+An optional collapsible UI can be enabled to display clue scroll capacity by tier. 
+
+It shows how many clues you can still receive, how many you're currently holding (with color indicators), where the clue is (bank or inventory), with an indicator that you are at capacity. 
+
+This feature is disabled by default and can be configured to show/hide info per tier.
+
+<img width="350" height="287" alt="clueSaverUI" src="https://github.com/user-attachments/assets/6e2cbbb3-4fc0-4835-8fdb-4a806c63dada" />
+
 ## Savers
 Methods which could reward scroll boxes for each tier are listed with the ability to block that method once you reach your scroll box capacity.
 

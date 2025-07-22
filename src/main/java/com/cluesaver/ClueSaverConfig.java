@@ -45,27 +45,27 @@ public interface ClueSaverConfig extends Config
 	String overlaysSection = "Overlays";
 
 	@ConfigItem(
+		keyName = "showUI",
+		name = "Show UI",
+		description = "Provides a collapsible UI display on the left for clue tracking",
+		section = overlaysSection,
+		position = 0
+	)
+	default boolean showUI()
+	{
+		return false;
+	}
+
+	@ConfigItem(
 		keyName = "showChatMessage",
 		name = "Show chat message",
 		description = "Show chat message indicating when clues are being saved",
 		section = overlaysSection,
-		position = 0
+		position = 1
 	)
 	default boolean showChatMessage()
 	{
 		return true;
-	}
-
-	@ConfigItem(
-		keyName = "showInfobox",
-		name = "Show infobox",
-		description = "Show infobox indicating when clues are being saved",
-		section = overlaysSection,
-		position = 1
-	)
-	default boolean showInfobox()
-	{
-		return false;
 	}
 
 	@ConfigItem(
@@ -78,6 +78,18 @@ public interface ClueSaverConfig extends Config
 	default boolean showTooltip()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		keyName = "showInfobox",
+		name = "Show infobox",
+		description = "Show infobox indicating when clues are being saved",
+		section = overlaysSection,
+		position = 3
+	)
+	default boolean showInfobox()
+	{
+		return false;
 	}
 
 	@ConfigSection(name = "Debug", description = "Options that provide additional information", position = 7)
@@ -160,7 +172,7 @@ public interface ClueSaverConfig extends Config
 		name = "Show master info",
 		description = "Show saving state for master clues regardless of if clue saver if active",
 		section = debugSection,
-		position = 5
+		position = 6
 	)
 	default boolean showMasterInfo()
 	{
