@@ -457,11 +457,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public MouseEvent mouseClicked(MouseEvent e)
 	{
-		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
-		{
-			isExpanded = !isExpanded;
-			e.consume();
-		}
 		return e;
 	}
 
@@ -478,6 +473,12 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public MouseEvent mouseReleased(MouseEvent e)
 	{
+		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
+		{
+			isExpanded = !isExpanded;
+			isButtonHovered = false;
+			e.consume();
+		}
 		return e;
 	}
 
