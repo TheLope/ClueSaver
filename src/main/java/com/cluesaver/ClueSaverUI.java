@@ -121,7 +121,8 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 		updateVisibilityIfNeeded();
 
-		if (cachedVisibleTierCount == 0) {
+		if (cachedVisibleTierCount == 0)
+		{
 			return null;
 		}
 
@@ -248,11 +249,15 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		}
 	}
 
-	private void updateVisibilityIfNeeded() {
-		if (visibilityNeedsUpdate || hasBoxCountChanged()) {
+	private void updateVisibilityIfNeeded()
+	{
+		if (visibilityNeedsUpdate || hasBoxCountChanged())
+		{
 			cachedVisibleTierCount = 0;
-			for (ClueTier tier : ClueTier.values()) {
-				if (shouldShowTier(tier)) {
+			for (ClueTier tier : ClueTier.values())
+			{
+				if (shouldShowTier(tier))
+				{
 					cachedVisibleTierCount++;
 				}
 			}
@@ -432,13 +437,16 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		}
 	}
 
-	private boolean hasBoxCountChanged() {
+	private boolean hasBoxCountChanged()
+	{
 		int currentTotalBoxes = 0;
-		for (ClueTier tier : ClueTier.values()) {
+		for (ClueTier tier : ClueTier.values())
+		{
 			currentTotalBoxes += calculateTierStats(tier).getTotalBoxes();
 		}
 
-		if (currentTotalBoxes != previousTotalBoxes) {
+		if (currentTotalBoxes != previousTotalBoxes)
+		{
 			previousTotalBoxes = currentTotalBoxes;
 			return true;
 		}
