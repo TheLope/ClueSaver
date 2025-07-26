@@ -196,7 +196,8 @@ public class ClueScrolls
 		ItemID.CLUE_SCROLL_EASY_23159,
 		ItemID.CLUE_SCROLL_EASY_23160,
 		ItemID.CLUE_SCROLL_EASY_29853,
-		ItemID.CLUE_SCROLL_EASY_29854);
+		ItemID.CLUE_SCROLL_EASY_29854,
+	        ItemID.CLUE_SCROLL_EASY_30928);
 
 	@Getter
 	public static final List<Integer> mediumIds = Arrays.asList(
@@ -362,7 +363,9 @@ public class ClueScrolls
 		ItemID.CLUE_SCROLL_MEDIUM_23142,
 		ItemID.CLUE_SCROLL_MEDIUM_23143,
 		ItemID.CLUE_SCROLL_MEDIUM_29857,
-		ItemID.CLUE_SCROLL_MEDIUM_29858);
+		ItemID.CLUE_SCROLL_MEDIUM_29858,
+	        ItemID.CLUE_SCROLL_MEDIUM_30933,
+	        ItemID.CLUE_SCROLL_MEDIUM_30935);
 
 	@Getter
 	public static final List<Integer> hardIds = Arrays.asList(
@@ -548,7 +551,9 @@ public class ClueScrolls
 		ItemID.CLUE_SCROLL_HARD_23180,
 		ItemID.CLUE_SCROLL_HARD_23181,
 		ItemID.CLUE_SCROLL_HARD_25792,
-		ItemID.CLUE_SCROLL_HARD_29859);
+		ItemID.CLUE_SCROLL_HARD_29859,
+	        ItemID.CLUE_SCROLL_HARD_30929,
+		ItemID.CLUE_SCROLL_HARD_30931);
 
 	@Getter
 	public static final List<Integer> eliteIds = Arrays.asList(
@@ -686,6 +691,7 @@ public class ClueScrolls
 		ItemID.CLUE_SCROLL_ELITE_26943,
 		ItemID.CLUE_SCROLL_ELITE_29855,
 		ItemID.CLUE_SCROLL_ELITE_29856,
+		ItemID.CLUE_SCROLL_ELITE_30932,
 		ItemID.CHALLENGE_SCROLL_ELITE);
 
 }
