@@ -69,6 +69,7 @@ import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ClientShutdown;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.RuneScapeProfileChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.plugins.Plugin;
@@ -194,6 +195,12 @@ public class ClueSaverPlugin extends Plugin
 	private void onClientShutdown(ClientShutdown event)
 	{
 		tierSaveManager.saveStateToConfig();
+	}
+
+	@Subscribe
+	public void onConfigChanged(ConfigChanged event)
+	{
+		clueSaverUI.onConfigChanged();
 	}
 
 	@Subscribe
