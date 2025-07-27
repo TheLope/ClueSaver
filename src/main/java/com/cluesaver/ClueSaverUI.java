@@ -458,7 +458,8 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		this.shouldDraw = visible;
 	}
 
-	public void onConfigChanged() {
+	public void onConfigChanged()
+	{
 		visibilityNeedsUpdate = true;
 	}
 
