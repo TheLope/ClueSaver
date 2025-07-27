@@ -49,6 +49,9 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private final ClueSaverConfig config;
 	private final ClueSaverUtils clueSaverUtils;
 	private final ClueSaverPlugin clueSaverPlugin;
+	private int cachedVisibleTierCount = 0;
+	private int previousTotalBoxes = 0;
+	private boolean visibilityNeedsUpdate = true;
 	private boolean shouldDraw = false;
 	private boolean isButtonHovered = false;
 	private boolean isExpanded = false;
@@ -111,26 +114,14 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (!shouldDraw || closedUIImage == null || buttonUIImage == null ||  buttonUIHoveredImage == null)
+		if (!shouldDraw || !config.showUI() || closedUIImage == null || buttonUIImage == null ||  buttonUIHoveredImage == null)
 		{
 			return null;
 		}
 
-		if (!config.showUI() || !shouldDraw)
-		{
-			return null;
-		}
+		updateVisibilityIfNeeded();
 
-		int visibleTierCount = 0;
-		for (ClueTier tier : ClueTier.values())
-		{
-			if (shouldShowTier(tier))
-			{
-				visibleTierCount++;
-			}
-		}
-
-		if (visibleTierCount == 0)
+		if (cachedVisibleTierCount == 0)
 		{
 			return null;
 		}
@@ -138,7 +129,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		BufferedImage firstClueImage = getClueImage(ClueTier.values()[0]);
 		int clueImageHeight = firstClueImage != null ? firstClueImage.getHeight() : 0;
 		int padding = 2;
-		int totalHeight = (clueImageHeight + padding) * visibleTierCount;
+		int totalHeight = (clueImageHeight + padding) * cachedVisibleTierCount;
 
 		final int closedUIX = 0;
 		final int closedUIY = (client.getCanvasHeight() - totalHeight) / 3;
@@ -149,14 +140,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			0, 0,
 			closedUIImage.getWidth(), closedUIImage.getHeight(),
 			null);
-
-		for (ClueTier tier : ClueTier.values())
-		{
-			if (!shouldShowTier(tier))
-			{
-				continue;
-			}
-		}
 
 		if (isExpanded)
 		{
@@ -263,6 +246,22 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			case MASTER:
 				masterIconBounds = bounds;
 				break;
+		}
+	}
+
+	private void updateVisibilityIfNeeded()
+	{
+		if (visibilityNeedsUpdate || hasBoxCountChanged())
+		{
+			cachedVisibleTierCount = 0;
+			for (ClueTier tier : ClueTier.values())
+			{
+				if (shouldShowTier(tier))
+				{
+					cachedVisibleTierCount++;
+				}
+			}
+			visibilityNeedsUpdate = false;
 		}
 	}
 
@@ -438,19 +437,35 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		}
 	}
 
+	private boolean hasBoxCountChanged()
+	{
+		int currentTotalBoxes = 0;
+		for (ClueTier tier : ClueTier.values())
+		{
+			currentTotalBoxes += calculateTierStats(tier).getTotalBoxes();
+		}
+
+		if (currentTotalBoxes != previousTotalBoxes)
+		{
+			previousTotalBoxes = currentTotalBoxes;
+			return true;
+		}
+		return false;
+	}
+
 	public void setVisible(boolean visible)
 	{
 		this.shouldDraw = visible;
 	}
 
+	public void onConfigChanged()
+	{
+		visibilityNeedsUpdate = true;
+	}
+
 	@Override
 	public MouseEvent mouseClicked(MouseEvent e)
 	{
-		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
-		{
-			isExpanded = !isExpanded;
-			e.consume();
-		}
 		return e;
 	}
 
@@ -467,6 +482,12 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public MouseEvent mouseReleased(MouseEvent e)
 	{
+		if (buttonBounds != null && buttonBounds.contains(e.getPoint()))
+		{
+			isExpanded = !isExpanded;
+			isButtonHovered = false;
+			e.consume();
+		}
 		return e;
 	}
 
