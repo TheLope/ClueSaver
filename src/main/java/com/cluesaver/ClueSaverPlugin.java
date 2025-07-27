@@ -200,7 +200,12 @@ public class ClueSaverPlugin extends Plugin
 	@Subscribe
 	public void onConfigChanged(ConfigChanged event)
 	{
-		clueSaverUI.onConfigChanged();
+		// TODO: Normalize config group
+		if (event.getGroup().equals("ClueSaver")
+			|| event.getGroup().equals(ClueSaverConfig.GROUP))
+		{
+			clueSaverUI.onConfigChanged();
+		}
 	}
 
 	@Subscribe
