@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import javax.inject.Inject;
 import net.runelite.api.Client;
+import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
@@ -76,6 +77,12 @@ public class ClueSaverOverlay extends OverlayPanel
 		}
 
 		MenuEntry entry = client.isMenuOpen() ? plugin.hoveredMenuEntry(menuEntries) : menuEntries[menuEntries.length - 1];
+
+		MenuAction menuAction = entry.getType();
+		if (!(menuAction == MenuAction.CC_OP
+			|| menuAction == MenuAction.GAME_OBJECT_FIRST_OPTION
+			|| menuAction == MenuAction.WIDGET_TARGET_ON_GAME_OBJECT)) return;
+
 		int itemId = entry.getItemId();
 		int objectId = plugin.objectIdForEntry(entry);
 

@@ -324,6 +324,11 @@ public class ClueSaverPlugin extends Plugin
 		}
 	}
 
+	public boolean isEliteClueMethodToSave(Integer itemId)
+	{
+		return itemId == ItemID.DARK_TOTEM;
+	}
+
 	public boolean isEliteClueMethodToSave(Integer objectId, String menuOption)
 	{
 		// Save Dark totems
@@ -383,7 +388,9 @@ public class ClueSaverPlugin extends Plugin
 
 	public boolean isItemIdMethodToSave(Integer itemId)
 	{
-		return (isMasterClueMethodToSave(itemId) || isImplingToSave(itemId));
+		return (isImplingToSave(itemId)
+			|| isEliteClueMethodToSave(itemId)
+			|| isMasterClueMethodToSave(itemId));
 	}
 
 	@Subscribe

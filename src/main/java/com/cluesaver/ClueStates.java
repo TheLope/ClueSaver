@@ -177,7 +177,9 @@ public class ClueStates
 		}
 		if (ScrollBox.CLUE_SCROLL_BOX_ELITE == itemId
 			|| eliteClueIds.contains(itemId)
-			|| (ImplingJars.eliteIds).contains(itemId))
+			|| (ImplingJars.eliteIds).contains(itemId)
+			|| ItemID.DARK_TOTEM == itemId
+			)
 		{
 			return ClueTier.ELITE;
 		}
