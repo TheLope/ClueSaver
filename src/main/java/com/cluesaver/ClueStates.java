@@ -149,17 +149,19 @@ public class ClueStates
 		return null;
 	}
 
-	public ClueTier getTierFromItemId(int itemId)
+	public ClueTier getTierFromItemId(ClueSaverConfig config, int itemId)
 	{
-		if (ScrollBox.CLUE_SCROLL_BOX_BEGINNER == itemId
+		if ((config.beginnerEnabled() && maxedBeginners()) && // Account for overlap in implings
+			(ScrollBox.CLUE_SCROLL_BOX_BEGINNER == itemId
 			|| beginnerClueId == itemId
-			|| (ImplingJars.beginnerIds).contains(itemId))
+			|| (ImplingJars.beginnerIds).contains(itemId)))
 		{
 			return ClueTier.BEGINNER;
 		}
-		if (ScrollBox.CLUE_SCROLL_BOX_EASY == itemId
+		if ((config.easyEnabled() && maxedEasies()) && // Account for overlap in implings
+			(ScrollBox.CLUE_SCROLL_BOX_EASY == itemId
 			|| easyClueIds.contains(itemId)
-			|| (ImplingJars.easyIds).contains(itemId))
+			|| (ImplingJars.easyIds).contains(itemId)))
 		{
 			return ClueTier.EASY;
 		}

@@ -42,16 +42,14 @@ public class ClueSaverOverlay extends OverlayPanel
 	private final ClueSaverPlugin plugin;
 	private final ClueSaverConfig config;
 	private final TooltipManager tooltipManager;
-	private final ClueStates clueStates;
 
 	@Inject
-	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager, ClueStates clueStates)
+	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager)
 	{
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
 		this.tooltipManager = tooltipManager;
-		this.clueStates = clueStates;
 
 		setPosition(OverlayPosition.TOOLTIP);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -89,7 +87,7 @@ public class ClueSaverOverlay extends OverlayPanel
 		if ((objectId != -1 && plugin.isEliteClueMethodToSave(objectId, entry.getOption()))
 			|| plugin.isItemIdMethodToSave(itemId))
 		{
-			ClueTier tier = clueStates.getTierFromItemId(itemId);
+			ClueTier tier = plugin.getClueStates().getTierFromItemId(config, itemId);
 			String tooltipText = plugin.getTierSavingCause(tier);
 
 			if (tooltipText != null)

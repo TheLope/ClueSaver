@@ -380,21 +380,11 @@ public class ClueSaverPlugin extends Plugin
 
 	public boolean isImplingToSave(Integer itemId)
 	{
-		return (ImplingJars.beginnerIds.contains(itemId)
-			&& config.saveBeginnerImplings()
-			&& clueStates.maxedBeginners())
-			|| (ImplingJars.easyIds.contains(itemId)
-			&& config.saveEasyImplings()
-			&& clueStates.maxedEasies())
-			|| (ImplingJars.mediumIds.contains(itemId)
-			&& config.saveMediumImplings()
-			&& clueStates.maxedMediums())
-			|| (ImplingJars.hardIds.contains(itemId)
-			&& config.saveHardImplings()
-			&& clueStates.maxedHards())
-			|| (ImplingJars.eliteIds.contains(itemId)
-			&& config.saveEliteImplings()
-			&&  clueStates.maxedElites());
+		return (ImplingJars.beginnerIds.contains(itemId) && config.saveBeginnerImplings() && clueStates.maxedBeginners())
+			|| (ImplingJars.easyIds.contains(itemId) && config.saveEasyImplings() && clueStates.maxedEasies())
+			|| (ImplingJars.mediumIds.contains(itemId) && config.saveMediumImplings() && clueStates.maxedMediums())
+			|| (ImplingJars.hardIds.contains(itemId) && config.saveHardImplings() && clueStates.maxedHards())
+			|| (ImplingJars.eliteIds.contains(itemId) && config.saveEliteImplings() && clueStates.maxedElites());
 	}
 
 	public boolean isItemIdMethodToSave(Integer itemId)
@@ -600,7 +590,7 @@ public class ClueSaverPlugin extends Plugin
 		int itemId = event.getItemId();
 		if (isMasterClueMethodToSave(itemId))
 		{
-			saveClue(event, clueStates.getTierFromItemId(itemId));
+			saveClue(event, clueStates.getTierFromItemId(config, itemId));
 		}
 	}
 
@@ -609,7 +599,7 @@ public class ClueSaverPlugin extends Plugin
 		int itemId = event.getItemId();
 		if (isImplingToSave(itemId))
 		{
-			saveClue(event, clueStates.getTierFromItemId(itemId));
+			saveClue(event, clueStates.getTierFromItemId(config, itemId));
 		}
 	}
 
