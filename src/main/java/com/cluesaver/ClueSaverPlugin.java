@@ -426,7 +426,7 @@ public class ClueSaverPlugin extends Plugin
 	private void handleInfoBox()
 	{
 		var isShowing = infoBox != null;
-		var shouldShow = config.showInfobox() && clueStates.isSaving(config);
+		var shouldShow = config.showInfobox() && clueStates.shouldShow(config);
 
 		if (isShowing && !shouldShow)
 		{

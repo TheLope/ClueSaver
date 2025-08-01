@@ -209,14 +209,44 @@ public class ClueStates
 		return boxState.getTotalCount() >= (tierBonus - modifier);
 	}
 
-	public boolean isSaving(ClueSaverConfig config)
+	public boolean shouldShow(ClueSaverConfig config)
 	{
-		return ((maxedBeginners() || config.showBeginnerInfo())
-			|| (maxedEasies() || config.showEasyInfo())
-			|| (maxedMediums() || config.showMediumInfo())
-			|| (maxedHards() || config.showHardInfo())
-			|| (maxedElites() || config.showEliteInfo())
-			|| (maxedMasters() || config.showMasterInfo()));
+		return shouldShowBeginner(config)
+			|| shouldShowEasy(config)
+			|| shouldShowMedium(config)
+			|| shouldShowHard(config)
+			|| shouldShowElite(config)
+			|| shouldShowMaster(config);
+	}
+
+	public boolean shouldShowBeginner(ClueSaverConfig config)
+	{
+		return config.beginnerEnabled() && (maxedBeginners() || config.showBeginnerInfo());
+	}
+
+	public boolean shouldShowEasy(ClueSaverConfig config)
+	{
+		return config.easyEnabled() && (maxedEasies() || config.showEasyInfo());
+	}
+
+	public boolean shouldShowMedium(ClueSaverConfig config)
+	{
+		return config.mediumEnabled() && (maxedMediums() || config.showMediumInfo());
+	}
+
+	public boolean shouldShowHard(ClueSaverConfig config)
+	{
+		return config.hardEnabled() && (maxedHards() || config.showHardInfo());
+	}
+
+	public boolean shouldShowElite(ClueSaverConfig config)
+	{
+		return config.eliteEnabled() && (maxedElites() || config.showEliteInfo());
+	}
+
+	public boolean shouldShowMaster(ClueSaverConfig config)
+	{
+		return config.masterEnabled() && (maxedMasters() || config.showMasterInfo());
 	}
 
 	public boolean maxedBeginners()

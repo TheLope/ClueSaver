@@ -415,23 +415,17 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		switch (tier)
 		{
 			case BEGINNER:
-				return config.beginnerEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedBeginners() || config.showBeginnerInfo());
+				return clueSaverPlugin.getClueStates().shouldShowBeginner(config);
 			case EASY:
-				return config.easyEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedEasies() || config.showEasyInfo());
+				return clueSaverPlugin.getClueStates().shouldShowEasy(config);
 			case MEDIUM:
-				return config.mediumEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedMediums() || config.showMediumInfo());
+				return clueSaverPlugin.getClueStates().shouldShowMedium(config);
 			case HARD:
-				return config.hardEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedHards() || config.showHardInfo());
+				return clueSaverPlugin.getClueStates().shouldShowHard(config);
 			case ELITE:
-				return config.eliteEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedElites() || config.showEliteInfo());
+				return clueSaverPlugin.getClueStates().shouldShowElite(config);
 			case MASTER:
-				return config.masterEnabled() &&
-					(clueSaverPlugin.getClueStates().maxedMasters() || config.showMasterInfo());
+				return clueSaverPlugin.getClueStates().shouldShowMaster(config);
 			default:
 				return false;
 		}
