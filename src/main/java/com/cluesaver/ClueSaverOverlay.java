@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import javax.inject.Inject;
 import net.runelite.api.Client;
+import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPanel;
@@ -41,16 +42,14 @@ public class ClueSaverOverlay extends OverlayPanel
 	private final ClueSaverPlugin plugin;
 	private final ClueSaverConfig config;
 	private final TooltipManager tooltipManager;
-	private final ClueStates clueStates;
 
 	@Inject
-	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager, ClueStates clueStates)
+	public ClueSaverOverlay(Client client, ClueSaverPlugin plugin, ClueSaverConfig config, TooltipManager tooltipManager)
 	{
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
 		this.tooltipManager = tooltipManager;
-		this.clueStates = clueStates;
 
 		setPosition(OverlayPosition.TOOLTIP);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -76,13 +75,19 @@ public class ClueSaverOverlay extends OverlayPanel
 		}
 
 		MenuEntry entry = client.isMenuOpen() ? plugin.hoveredMenuEntry(menuEntries) : menuEntries[menuEntries.length - 1];
+
+		MenuAction menuAction = entry.getType();
+		if (!(menuAction == MenuAction.CC_OP
+			|| menuAction == MenuAction.GAME_OBJECT_FIRST_OPTION
+			|| menuAction == MenuAction.WIDGET_TARGET_ON_GAME_OBJECT)) return;
+
 		int itemId = entry.getItemId();
 		int objectId = plugin.objectIdForEntry(entry);
 
 		if ((objectId != -1 && plugin.isEliteClueMethodToSave(objectId, entry.getOption()))
 			|| plugin.isItemIdMethodToSave(itemId))
 		{
-			ClueTier tier = clueStates.getTierFromItemId(itemId);
+			ClueTier tier = plugin.getClueStates().getTierFromItemId(config, itemId);
 			String tooltipText = plugin.getTierSavingCause(tier);
 
 			if (tooltipText != null)

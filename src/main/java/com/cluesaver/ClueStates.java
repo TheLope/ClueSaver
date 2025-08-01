@@ -149,17 +149,19 @@ public class ClueStates
 		return null;
 	}
 
-	public ClueTier getTierFromItemId(int itemId)
+	public ClueTier getTierFromItemId(ClueSaverConfig config, int itemId)
 	{
-		if (ScrollBox.CLUE_SCROLL_BOX_BEGINNER == itemId
+		if ((config.beginnerEnabled() && maxedBeginners()) && // Account for overlap in implings
+			(ScrollBox.CLUE_SCROLL_BOX_BEGINNER == itemId
 			|| beginnerClueId == itemId
-			|| (ImplingJars.beginnerIds).contains(itemId))
+			|| (ImplingJars.beginnerIds).contains(itemId)))
 		{
 			return ClueTier.BEGINNER;
 		}
-		if (ScrollBox.CLUE_SCROLL_BOX_EASY == itemId
+		if ((config.easyEnabled() && maxedEasies()) && // Account for overlap in implings
+			(ScrollBox.CLUE_SCROLL_BOX_EASY == itemId
 			|| easyClueIds.contains(itemId)
-			|| (ImplingJars.easyIds).contains(itemId))
+			|| (ImplingJars.easyIds).contains(itemId)))
 		{
 			return ClueTier.EASY;
 		}
@@ -177,7 +179,9 @@ public class ClueStates
 		}
 		if (ScrollBox.CLUE_SCROLL_BOX_ELITE == itemId
 			|| eliteClueIds.contains(itemId)
-			|| (ImplingJars.eliteIds).contains(itemId))
+			|| (ImplingJars.eliteIds).contains(itemId)
+			|| ItemID.DARK_TOTEM == itemId
+			)
 		{
 			return ClueTier.ELITE;
 		}
@@ -209,14 +213,44 @@ public class ClueStates
 		return boxState.getTotalCount() >= (tierBonus - modifier);
 	}
 
-	public boolean isSaving(ClueSaverConfig config)
+	public boolean shouldShow(ClueSaverConfig config)
 	{
-		return ((maxedBeginners() || config.showBeginnerInfo())
-			|| (maxedEasies() || config.showEasyInfo())
-			|| (maxedMediums() || config.showMediumInfo())
-			|| (maxedHards() || config.showHardInfo())
-			|| (maxedElites() || config.showEliteInfo())
-			|| (maxedMasters() || config.showMasterInfo()));
+		return shouldShowBeginner(config)
+			|| shouldShowEasy(config)
+			|| shouldShowMedium(config)
+			|| shouldShowHard(config)
+			|| shouldShowElite(config)
+			|| shouldShowMaster(config);
+	}
+
+	public boolean shouldShowBeginner(ClueSaverConfig config)
+	{
+		return config.beginnerEnabled() && (maxedBeginners() || config.showBeginnerInfo());
+	}
+
+	public boolean shouldShowEasy(ClueSaverConfig config)
+	{
+		return config.easyEnabled() && (maxedEasies() || config.showEasyInfo());
+	}
+
+	public boolean shouldShowMedium(ClueSaverConfig config)
+	{
+		return config.mediumEnabled() && (maxedMediums() || config.showMediumInfo());
+	}
+
+	public boolean shouldShowHard(ClueSaverConfig config)
+	{
+		return config.hardEnabled() && (maxedHards() || config.showHardInfo());
+	}
+
+	public boolean shouldShowElite(ClueSaverConfig config)
+	{
+		return config.eliteEnabled() && (maxedElites() || config.showEliteInfo());
+	}
+
+	public boolean shouldShowMaster(ClueSaverConfig config)
+	{
+		return config.masterEnabled() && (maxedMasters() || config.showMasterInfo());
 	}
 
 	public boolean maxedBeginners()

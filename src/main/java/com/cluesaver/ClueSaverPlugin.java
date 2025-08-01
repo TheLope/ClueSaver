@@ -27,6 +27,8 @@ package com.cluesaver;
 import com.cluesaver.ids.GoldChest;
 import com.cluesaver.ids.ImplingJars;
 import com.cluesaver.ids.ScrollBox;
+import com.cluesaver.ids.ToaChest;
+import com.cluesaver.ids.TobChest;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.util.Objects;
@@ -285,6 +287,7 @@ public class ClueSaverPlugin extends Plugin
 		// If elite clue method saver is active
 		if (config.saveGoldKeys()
 			|| config.saveDarkTotems()
+			|| config.saveToaRewardsChests()
 			|| config.saveTobRewardsChests()
 			|| config.saveGauntletRewardChests())
 		{
@@ -324,6 +327,11 @@ public class ClueSaverPlugin extends Plugin
 		}
 	}
 
+	public boolean isEliteClueMethodToSave(Integer itemId)
+	{
+		return itemId == ItemID.DARK_TOTEM;
+	}
+
 	public boolean isEliteClueMethodToSave(Integer objectId, String menuOption)
 	{
 		// Save Dark totems
@@ -344,8 +352,16 @@ public class ClueSaverPlugin extends Plugin
 			return true;
 		}
 
+		// Save ToA Rewards Chests
+		if (config.saveToaRewardsChests() && ToaChest.getItemIds().contains(objectId)
+			&& (menuOption.equals("Open") || menuOption.equals("Claim")))
+		{
+			return true;
+		}
+
 		// Save ToB Rewards Chests
-		if (config.saveTobRewardsChests() && objectId == ObjectID.REWARDS_CHEST_41435 && menuOption.equals("Claim"))
+		if (config.saveTobRewardsChests() && TobChest.getItemIds().contains(objectId)
+			&& (menuOption.equals("Open") || menuOption.equals("Claim")))
 		{
 			return true;
 		}
@@ -364,26 +380,18 @@ public class ClueSaverPlugin extends Plugin
 
 	public boolean isImplingToSave(Integer itemId)
 	{
-		return (ImplingJars.beginnerIds.contains(itemId)
-			&& config.saveBeginnerImplings()
-			&& clueStates.maxedBeginners())
-			|| (ImplingJars.easyIds.contains(itemId)
-			&& config.saveEasyImplings()
-			&& clueStates.maxedEasies())
-			|| (ImplingJars.mediumIds.contains(itemId)
-			&& config.saveMediumImplings()
-			&& clueStates.maxedMediums())
-			|| (ImplingJars.hardIds.contains(itemId)
-			&& config.saveHardImplings()
-			&& clueStates.maxedHards())
-			|| (ImplingJars.eliteIds.contains(itemId)
-			&& config.saveEliteImplings()
-			&&  clueStates.maxedElites());
+		return (ImplingJars.beginnerIds.contains(itemId) && config.saveBeginnerImplings() && clueStates.maxedBeginners())
+			|| (ImplingJars.easyIds.contains(itemId) && config.saveEasyImplings() && clueStates.maxedEasies())
+			|| (ImplingJars.mediumIds.contains(itemId) && config.saveMediumImplings() && clueStates.maxedMediums())
+			|| (ImplingJars.hardIds.contains(itemId) && config.saveHardImplings() && clueStates.maxedHards())
+			|| (ImplingJars.eliteIds.contains(itemId) && config.saveEliteImplings() && clueStates.maxedElites());
 	}
 
 	public boolean isItemIdMethodToSave(Integer itemId)
 	{
-		return (isMasterClueMethodToSave(itemId) || isImplingToSave(itemId));
+		return (isImplingToSave(itemId)
+			|| isEliteClueMethodToSave(itemId)
+			|| isMasterClueMethodToSave(itemId));
 	}
 
 	@Subscribe
@@ -426,7 +434,7 @@ public class ClueSaverPlugin extends Plugin
 	private void handleInfoBox()
 	{
 		var isShowing = infoBox != null;
-		var shouldShow = config.showInfobox() && clueStates.isSaving(config);
+		var shouldShow = config.showInfobox() && clueStates.shouldShow(config);
 
 		if (isShowing && !shouldShow)
 		{
@@ -472,7 +480,7 @@ public class ClueSaverPlugin extends Plugin
 
 	public String getInfoboxSavingCauses()
 	{
-		StringBuilder savingCause = getActiveSavingText();
+		StringBuilder savingCause = new StringBuilder();
 
 		String beginnerCause = getTierSavingCause(ClueTier.BEGINNER, config.showBeginnerInfo());
 		if (beginnerCause != null) savingCause.append(beginnerCause).append("<br>");
@@ -582,7 +590,7 @@ public class ClueSaverPlugin extends Plugin
 		int itemId = event.getItemId();
 		if (isMasterClueMethodToSave(itemId))
 		{
-			saveClue(event, clueStates.getTierFromItemId(itemId));
+			saveClue(event, clueStates.getTierFromItemId(config, itemId));
 		}
 	}
 
@@ -591,7 +599,7 @@ public class ClueSaverPlugin extends Plugin
 		int itemId = event.getItemId();
 		if (isImplingToSave(itemId))
 		{
-			saveClue(event, clueStates.getTierFromItemId(itemId));
+			saveClue(event, clueStates.getTierFromItemId(config, itemId));
 		}
 	}
 
