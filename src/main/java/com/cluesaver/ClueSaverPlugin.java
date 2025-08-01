@@ -27,6 +27,8 @@ package com.cluesaver;
 import com.cluesaver.ids.GoldChest;
 import com.cluesaver.ids.ImplingJars;
 import com.cluesaver.ids.ScrollBox;
+import com.cluesaver.ids.ToaChest;
+import com.cluesaver.ids.TobChest;
 import com.google.inject.Provides;
 import java.awt.Color;
 import java.util.Objects;
@@ -285,6 +287,7 @@ public class ClueSaverPlugin extends Plugin
 		// If elite clue method saver is active
 		if (config.saveGoldKeys()
 			|| config.saveDarkTotems()
+			|| config.saveToaRewardsChests()
 			|| config.saveTobRewardsChests()
 			|| config.saveGauntletRewardChests())
 		{
@@ -349,8 +352,16 @@ public class ClueSaverPlugin extends Plugin
 			return true;
 		}
 
+		// Save ToA Rewards Chests
+		if (config.saveToaRewardsChests() && ToaChest.getItemIds().contains(objectId)
+			&& (menuOption.equals("Open") || menuOption.equals("Claim")))
+		{
+			return true;
+		}
+
 		// Save ToB Rewards Chests
-		if (config.saveTobRewardsChests() && objectId == ObjectID.REWARDS_CHEST_41435 && menuOption.equals("Claim"))
+		if (config.saveTobRewardsChests() && TobChest.getItemIds().contains(objectId)
+			&& (menuOption.equals("Open") || menuOption.equals("Claim")))
 		{
 			return true;
 		}

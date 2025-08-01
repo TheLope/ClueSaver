@@ -291,11 +291,23 @@ public interface ClueSaverConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "saveTobRewardsChests",
-		name = "Save ToB Rewards Chests",
-		description = "Blocks opening ToB reward chest (by bank) while player is ineligible to receive an elite scroll box",
+		keyName = "saveToaRewardsChests",
+		name = "Save ToA Rewards Chests",
+		description = "Blocks opening ToA reward chests while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
 		position = 4
+	)
+	default boolean saveToaRewardsChests()
+	{
+		return true;
+	}
+
+	@ConfigItem(
+		keyName = "saveTobRewardsChests",
+		name = "Save ToB Rewards Chests",
+		description = "Blocks opening ToB reward chests while player is ineligible to receive an elite scroll box",
+		section = eliteSection,
+		position = 5
 	)
 	default boolean saveTobRewardsChests()
 	{
