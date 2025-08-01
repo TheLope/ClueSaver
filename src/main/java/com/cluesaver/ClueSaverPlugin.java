@@ -472,7 +472,7 @@ public class ClueSaverPlugin extends Plugin
 
 	public String getInfoboxSavingCauses()
 	{
-		StringBuilder savingCause = getActiveSavingText();
+		StringBuilder savingCause = new StringBuilder();
 
 		String beginnerCause = getTierSavingCause(ClueTier.BEGINNER, config.showBeginnerInfo());
 		if (beginnerCause != null) savingCause.append(beginnerCause).append("<br>");
