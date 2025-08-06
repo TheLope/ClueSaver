@@ -33,7 +33,7 @@ public class ToaChest
 {
 	@Getter
 	public static final List<Integer> itemIds = Arrays.asList(
-		ObjectID.CHEST_44786,       // toa vault chest mine standard 	 - Open
+		ObjectID.CHEST_44786,       // toa vault chest mine standard.    - Open
 		ObjectID.SARCOPHAGUS_44826, // toa vault sarcophagus closed rare - Open
 		ObjectID.REWARDS_NICHE);    // toa rewards chest lobby open.     - Claim
 }
