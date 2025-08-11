@@ -114,7 +114,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (!shouldDraw || !config.showUI() || closedUIImage == null || buttonUIImage == null ||  buttonUIHoveredImage == null)
+		if (!shouldDraw || !config.showUI() || closedUIImage == null || buttonUIImage == null || buttonUIHoveredImage == null)
 		{
 			return null;
 		}
@@ -131,8 +131,16 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		int padding = 2;
 		int totalHeight = (clueImageHeight + padding) * cachedVisibleTierCount;
 
-		final int closedUIX = 0;
-		final int closedUIY = (client.getCanvasHeight() - totalHeight) / 3;
+		final int canvasWidth = client.getCanvasWidth();
+		final int canvasHeight = client.getCanvasHeight();
+
+		final boolean anchorRight = config.uiAnchor() == ClueSaverConfig.UIAnchor.RIGHT;
+
+		final int closedUIX = anchorRight
+			? canvasWidth - closedUIImage.getWidth()
+			: 0;
+
+		final int closedUIY = (canvasHeight - totalHeight) / 3 + 2 * config.uiVerticalOffset();
 
 		graphics.drawImage(closedUIImage,
 			closedUIX, closedUIY,
@@ -141,10 +149,14 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			closedUIImage.getWidth(), closedUIImage.getHeight(),
 			null);
 
+		final int expandedUIWidth = firstClueImage.getWidth() + 50;
+
 		if (isExpanded)
 		{
-			final int expandedUIX = closedUIX + closedUIImage.getWidth();
-			final int startX = expandedUIX + 4;
+			final int expandedUIX = anchorRight
+				? closedUIX - expandedUIWidth
+				: closedUIX + closedUIImage.getWidth();
+
 			final int startY = closedUIY + 3;
 
 			int currentY = startY;
@@ -160,65 +172,117 @@ public class ClueSaverUI extends Overlay implements MouseListener
 				if (clueImage == null) continue;
 
 				int nextY = currentY + clueImage.getHeight() + padding;
-				graphics.drawImage(clueImage, startX, currentY, null);
+
+				final int clueX = anchorRight
+					? expandedUIX + expandedUIWidth - clueImage.getWidth() - 4
+					: expandedUIX + 4;
+
+				graphics.drawImage(clueImage, clueX, currentY, null);
 
 				TierStats stats = calculateTierStats(tier);
 
 				if (stats.hasClueInInventory() && invIcon != null)
 				{
-					int invIconX = startX + clueImage.getWidth() - invIcon.getWidth();
-					int invIconY = currentY + clueImage.getHeight() - invIcon.getHeight();
+					final int invIconX = anchorRight
+						? clueX
+						: clueX + clueImage.getWidth() - invIcon.getWidth();
+
+					final int invIconY = currentY + clueImage.getHeight() - invIcon.getHeight();
 					graphics.drawImage(invIcon, invIconX, invIconY, null);
 				}
 
 				if (stats.hasClueInBank() && bankIcon != null)
 				{
-					int bankIconX = startX + clueImage.getWidth() - bankIcon.getWidth();
-					int bankIconY = currentY + clueImage.getHeight() - bankIcon.getHeight();
+					final int bankIconX = anchorRight
+						? clueX
+						: clueX + clueImage.getWidth() - bankIcon.getWidth();
+
+					final int bankIconY = currentY + clueImage.getHeight() - bankIcon.getHeight();
 					graphics.drawImage(bankIcon, bankIconX, bankIconY, null);
 				}
 
-				int pipX = startX - 5;
-				int pipStartY = currentY + clueImage.getHeight();
+				final int pipX = anchorRight
+					? clueX + clueImage.getWidth()
+					: clueX - pipImage.getWidth();
+
+				final int pipStartY = currentY + clueImage.getHeight();
 
 				if (stats.getTotalBoxes() == stats.getMaxClueCount() && activeClueSaver != null)
 				{
-					graphics.drawImage(activeClueSaver, startX, currentY, null);
+					final int saverX = anchorRight
+						? clueX - activeClueSaver.getWidth() - 4
+						: clueX;
+
+					graphics.drawImage(activeClueSaver, saverX, currentY, null);
 				}
 
 				for (int pip = stats.getMaxClueCount() - 1; pip >= 0; pip--)
 				{
 					int pipY = pipStartY - ((pip + 1) * (pipImage.getHeight() - 1)) - 6;
+
+					BufferedImage pipToDraw;
 					if (stats.getTotalBoxes() == stats.getMaxClueCount())
 					{
-						graphics.drawImage(pipRedImage, pipX, pipY, null);
+						pipToDraw = pipRedImage;
 					}
 					else if (stats.getMaxClueCount() - stats.getTotalBoxes() == 1 && pip < stats.getTotalBoxes())
 					{
-						graphics.drawImage(pipOrangeImage, pipX, pipY, null);
+						pipToDraw = pipOrangeImage;
 					}
 					else if (pip < stats.getTotalBoxes())
 					{
-						graphics.drawImage(pipGreenImage, pipX, pipY, null);
+						pipToDraw = pipGreenImage;
 					}
 					else
 					{
-						graphics.drawImage(pipImage, pipX, pipY, null);
+						pipToDraw = pipImage;
+					}
+
+					if (anchorRight)
+					{
+						graphics.translate(pipX + pipToDraw.getWidth(), pipY);
+						graphics.scale(-1, 1);
+						graphics.drawImage(pipToDraw, 0, 0, null);
+						graphics.scale(-1, 1);
+						graphics.translate(-(pipX + pipToDraw.getWidth()), -pipY);
+					}
+					else
+					{
+						graphics.drawImage(pipToDraw, pipX, pipY, null);
 					}
 				}
 
-				updateIconBounds(tier, startX, currentY, clueImage);
+				updateIconBounds(tier, clueX, currentY, clueImage);
+
 				currentY = nextY;
 			}
 		}
 
-		final int buttonUIX = closedUIX + closedUIImage.getWidth() +
-			(isExpanded ? 45 : 0);
-		final int buttonUIY = closedUIY + 8;
 		BufferedImage buttonToDraw = isButtonHovered ? buttonUIHoveredImage : buttonUIImage;
-		buttonBounds = new Rectangle(buttonUIX, buttonUIY,
-			buttonToDraw.getWidth(), buttonToDraw.getHeight());
-		graphics.drawImage(buttonToDraw, buttonUIX, buttonUIY, null);
+		final int buttonWidth = buttonToDraw.getWidth();
+		final int buttonHeight = buttonToDraw.getHeight();
+
+		final int buttonUIX = anchorRight
+			? (isExpanded
+			? closedUIX - (int)Math.round(0.5 * expandedUIWidth) - buttonWidth + 1
+			: closedUIX - buttonWidth)
+			: (closedUIX + closedUIImage.getWidth() + (isExpanded ? 45 : 0));
+
+		final int buttonUIY = closedUIY + 8;
+
+		if (anchorRight)
+		{
+			graphics.drawImage(buttonToDraw,
+				buttonUIX + buttonWidth, buttonUIY,
+				-buttonWidth, buttonHeight,
+				null);
+		}
+		else
+		{
+			graphics.drawImage(buttonToDraw, buttonUIX, buttonUIY, null);
+		}
+
+		buttonBounds = new Rectangle(buttonUIX, buttonUIY, buttonWidth, buttonHeight);
 
 		return null;
 	}
