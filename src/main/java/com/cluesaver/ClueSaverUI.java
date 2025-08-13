@@ -44,6 +44,17 @@ import net.runelite.client.util.ImageUtil;
 @Slf4j
 public class ClueSaverUI extends Overlay implements MouseListener
 {
+	private static final int PADDING = 2;
+	private static final int POSITION_SPEED_MULTIPLIER = 2;
+	private static final int EXPANDED_START_Y_OFFSET = 3;
+	private static final int CLUE_X_OFFSET = 4;
+	private static final int SAVER_ICON_OFFSET = 4;
+	private static final int BUTTON_VERTICAL_OFFSET = 8;
+	private static final int EXPANDED_UI_EXTRA_WIDTH = 50;
+	private static final int EXPANDED_BUTTON_LEFT_OFFSET = 45;
+	private static final int PIP_VERTICAL_OVERLAP = 1;
+	private static final int PIP_ADDITIONAL_Y_OFFSET = 6;
+	private static final int CLOSED_UI_Y_DIVIDER = 3;
 	private final Client client;
 	private final ClientThread clientThread;
 	private final ClueSaverConfig config;
@@ -128,8 +139,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 		BufferedImage firstClueImage = getClueImage(ClueTier.values()[0]);
 		int clueImageHeight = firstClueImage != null ? firstClueImage.getHeight() : 0;
-		int padding = 2;
-		int totalHeight = (clueImageHeight + padding) * cachedVisibleTierCount;
+		int totalHeight = (clueImageHeight + PADDING) * cachedVisibleTierCount;
 
 		final int canvasWidth = client.getCanvasWidth();
 		final int canvasHeight = client.getCanvasHeight();
@@ -140,7 +150,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			? canvasWidth - closedUIImage.getWidth()
 			: 0;
 
-		final int closedUIY = (canvasHeight - totalHeight) / 3 + 2 * config.uiVerticalOffset();
+		final int closedUIY = (canvasHeight - totalHeight) / CLOSED_UI_Y_DIVIDER + POSITION_SPEED_MULTIPLIER * config.uiVerticalOffset();
 
 		int cropHeight = Math.min(closedUIImage.getHeight(), totalHeight);
 
@@ -153,7 +163,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			null
 		);
 
-		final int expandedUIWidth = firstClueImage.getWidth() + 50;
+		final int expandedUIWidth = firstClueImage.getWidth() + EXPANDED_UI_EXTRA_WIDTH;
 
 		if (isExpanded)
 		{
@@ -161,7 +171,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 				? closedUIX - expandedUIWidth
 				: closedUIX + closedUIImage.getWidth();
 
-			final int startY = closedUIY + 3;
+			final int startY = closedUIY + EXPANDED_START_Y_OFFSET;
 
 			int currentY = startY;
 
@@ -175,11 +185,11 @@ public class ClueSaverUI extends Overlay implements MouseListener
 				BufferedImage clueImage = getClueImage(tier);
 				if (clueImage == null) continue;
 
-				int nextY = currentY + clueImage.getHeight() + padding;
+				int nextY = currentY + clueImage.getHeight() + PADDING;
 
 				final int clueX = anchorRight
-					? expandedUIX + expandedUIWidth - clueImage.getWidth() - 4
-					: expandedUIX + 4;
+					? expandedUIX + expandedUIWidth - clueImage.getWidth() - CLUE_X_OFFSET
+					: expandedUIX + CLUE_X_OFFSET;
 
 				graphics.drawImage(clueImage, clueX, currentY, null);
 
@@ -213,16 +223,12 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 				if (stats.getTotalBoxes() == stats.getMaxClueCount() && activeClueSaver != null)
 				{
-					final int saverX = anchorRight
-						? clueX - activeClueSaver.getWidth() - 4
-						: clueX;
-
-					graphics.drawImage(activeClueSaver, saverX, currentY, null);
+					graphics.drawImage(activeClueSaver, clueX, currentY, null);
 				}
 
 				for (int pip = stats.getMaxClueCount() - 1; pip >= 0; pip--)
 				{
-					int pipY = pipStartY - ((pip + 1) * (pipImage.getHeight() - 1)) - 6;
+					int pipY = pipStartY - ((pip + 1) * (pipImage.getHeight() - PIP_VERTICAL_OVERLAP)) - PIP_ADDITIONAL_Y_OFFSET;
 
 					BufferedImage pipToDraw;
 					if (stats.getTotalBoxes() == stats.getMaxClueCount())
@@ -270,9 +276,9 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			? (isExpanded
 			? closedUIX - (int)Math.round(0.5 * expandedUIWidth) - buttonWidth + 1
 			: closedUIX - buttonWidth)
-			: (closedUIX + closedUIImage.getWidth() + (isExpanded ? 45 : 0)) - 1;
+			: (closedUIX + closedUIImage.getWidth() + (isExpanded ? EXPANDED_BUTTON_LEFT_OFFSET : 0)) - 1;
 
-		final int buttonUIY = closedUIY + 8;
+		final int buttonUIY = closedUIY + BUTTON_VERTICAL_OFFSET;
 
 		if (anchorRight)
 		{

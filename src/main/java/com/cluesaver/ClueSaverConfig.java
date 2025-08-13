@@ -453,7 +453,7 @@ public interface ClueSaverConfig extends Config
 		return true;
 	}
 
-	@ConfigSection(name = "Interface", description = "Options that effect overlays", position = 9)
+	@ConfigSection(name = "Interface", description = "Options that effect the UI", position = 9)
 	String InterfaceSection = "Interface";
 
 	public enum UIAnchor
@@ -464,7 +464,7 @@ public interface ClueSaverConfig extends Config
 	@ConfigItem(
 		keyName = "uiAnchor",
 		name = "UI Location",
-		description = "Choose which side of the screen the UI is on",
+		description = "Choose which side of the client the UI is on",
 		section = InterfaceSection,
 		position = 0
 	)
@@ -472,9 +472,9 @@ public interface ClueSaverConfig extends Config
 	{
 		return UIAnchor.LEFT;
 	}
+
 	@Range(min = -500, max = 500)
 	@ConfigItem(
-
 		keyName = "uiVerticalOffset",
 		name = "UI Vertical Offset",
 		description = "Adjusts the vertical position of the UI",
@@ -485,5 +485,4 @@ public interface ClueSaverConfig extends Config
 	{
 		return 0;
 	}
-
 }
