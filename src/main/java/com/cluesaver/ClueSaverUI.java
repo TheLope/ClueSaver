@@ -142,12 +142,16 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 		final int closedUIY = (canvasHeight - totalHeight) / 3 + 2 * config.uiVerticalOffset();
 
-		graphics.drawImage(closedUIImage,
+		int cropHeight = Math.min(closedUIImage.getHeight(), totalHeight);
+
+		graphics.drawImage(
+			closedUIImage,
 			closedUIX, closedUIY,
-			closedUIX + closedUIImage.getWidth(), closedUIY + totalHeight,
-			0, 0,
-			closedUIImage.getWidth(), closedUIImage.getHeight(),
-			null);
+			closedUIX + closedUIImage.getWidth(),
+			closedUIY + cropHeight,
+			0, 0,closedUIImage.getWidth(), cropHeight,
+			null
+		);
 
 		final int expandedUIWidth = firstClueImage.getWidth() + 50;
 
@@ -266,7 +270,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			? (isExpanded
 			? closedUIX - (int)Math.round(0.5 * expandedUIWidth) - buttonWidth + 1
 			: closedUIX - buttonWidth)
-			: (closedUIX + closedUIImage.getWidth() + (isExpanded ? 45 : 0));
+			: (closedUIX + closedUIImage.getWidth() + (isExpanded ? 45 : 0)) - 1;
 
 		final int buttonUIY = closedUIY + 8;
 
