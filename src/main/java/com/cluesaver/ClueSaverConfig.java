@@ -28,6 +28,7 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.ConfigSection;
+import net.runelite.client.config.Range;
 
 @ConfigGroup("ClueSaver")
 public interface ClueSaverConfig extends Config
@@ -450,5 +451,38 @@ public interface ClueSaverConfig extends Config
 	default boolean masterEnabled()
 	{
 		return true;
+	}
+
+	@ConfigSection(name = "Interface", description = "Options that effect the UI", position = 9)
+	String InterfaceSection = "Interface";
+
+	public enum UIAnchor
+	{
+		LEFT,
+		RIGHT
+	}
+	@ConfigItem(
+		keyName = "uiAnchor",
+		name = "UI Location",
+		description = "Choose which side of the client the UI is on",
+		section = InterfaceSection,
+		position = 0
+	)
+	default UIAnchor uiAnchor()
+	{
+		return UIAnchor.LEFT;
+	}
+
+	@Range(min = -500, max = 500)
+	@ConfigItem(
+		keyName = "uiVerticalOffset",
+		name = "UI Vertical Offset",
+		description = "Adjusts the vertical position of the UI",
+		section = InterfaceSection,
+		position = 1
+	)
+	default int uiVerticalOffset()
+	{
+		return 0;
 	}
 }
