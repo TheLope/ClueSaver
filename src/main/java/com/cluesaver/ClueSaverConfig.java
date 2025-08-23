@@ -256,11 +256,23 @@ public interface ClueSaverConfig extends Config
 	}
 
 	@ConfigItem(
+		keyName = "saveBaHighGambles",
+		name = "Save BA high gambles",
+		description = "Blocks selecting BA high gamble reward while player is ineligible to receive an elite scroll box",
+		section = eliteSection,
+		position = 1
+	)
+	default boolean saveBaHighGambles()
+	{
+		return true;
+	}
+
+	@ConfigItem(
 		keyName = "saveDarkTotems",
 		name = "Save Dark Totems",
 		description = "Blocks dark totem usage while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
-		position = 1
+		position = 2
 	)
 	default boolean saveDarkTotems()
 	{
@@ -272,7 +284,7 @@ public interface ClueSaverConfig extends Config
 		name = "Save Gold keys",
 		description = "Blocks gold key usage while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
-		position = 2
+		position = 3
 	)
 	default boolean saveGoldKeys()
 	{
@@ -284,7 +296,7 @@ public interface ClueSaverConfig extends Config
 		name = "Save Gauntlet Reward Chests",
 		description = "Blocks opening Gauntlet reward chest while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
-		position = 3
+		position = 4
 	)
 	default boolean saveGauntletRewardChests()
 	{
@@ -296,7 +308,7 @@ public interface ClueSaverConfig extends Config
 		name = "Save ToA Rewards Chests",
 		description = "Blocks opening ToA reward chests while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
-		position = 4
+		position = 5
 	)
 	default boolean saveToaRewardsChests()
 	{
@@ -308,7 +320,7 @@ public interface ClueSaverConfig extends Config
 		name = "Save ToB Rewards Chests",
 		description = "Blocks opening ToB reward chests while player is ineligible to receive an elite scroll box",
 		section = eliteSection,
-		position = 5
+		position = 6
 	)
 	default boolean saveTobRewardsChests()
 	{
