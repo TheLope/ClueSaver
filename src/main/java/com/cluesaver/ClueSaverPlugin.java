@@ -285,19 +285,30 @@ public class ClueSaverPlugin extends Plugin
 		}
 
 		// If elite clue method saver is active
-		if (config.saveGoldKeys()
-			|| config.saveDarkTotems()
-			|| config.saveToaRewardsChests()
-			|| config.saveTobRewardsChests()
-			|| config.saveGauntletRewardChests())
+		if (clueStates.maxedElites())
 		{
-			MenuEntry entry = event.getMenuEntry();
-			int objectId = objectIdForEntry(entry);
-
-			// Consume clue method events
-			if (objectId != -1 && isEliteClueMethodToSave(objectId, entry.getOption()))
+			// Consume object events
+			if (config.saveGoldKeys()
+				|| config.saveDarkTotems()
+				|| config.saveGauntletRewardChests()
+				|| config.saveToaRewardsChests()
+				|| config.saveTobRewardsChests())
 			{
-				if (clueStates.maxedElites())
+				MenuEntry entry = event.getMenuEntry();
+				int objectId = objectIdForEntry(entry);
+
+				// Consume clue method events
+				if (objectId != -1 && isEliteClueMethodToSave(objectId, entry.getOption()))
+				{
+					saveClue(event, ClueTier.ELITE);
+				}
+			}
+
+			// Consume menu events
+			if (config.saveBaHighGambles())
+			{
+				String menuTarget = event.getMenuTarget();
+				if (!menuTarget.isEmpty() && isEliteClueMethodToSave(menuTarget))
 				{
 					saveClue(event, ClueTier.ELITE);
 				}
@@ -330,6 +341,12 @@ public class ClueSaverPlugin extends Plugin
 	public boolean isEliteClueMethodToSave(Integer itemId)
 	{
 		return itemId == ItemID.DARK_TOTEM;
+	}
+
+	public boolean isEliteClueMethodToSave(String menuTarget)
+	{
+		// Save BA high gambles
+		return menuTarget.equals("<col=ff9040>Gamble points - high items</col>");
 	}
 
 	public boolean isEliteClueMethodToSave(Integer objectId, String menuOption)
@@ -366,7 +383,6 @@ public class ClueSaverPlugin extends Plugin
 			return true;
 		}
 
-		// TODO: Block BA gambles
 		return false;
 	}
 
