@@ -32,7 +32,7 @@ import net.runelite.api.Client;
 import net.runelite.api.Item;
 import net.runelite.api.ItemContainer;
 
-// Credit to thelaakes for borrowed utiltites from scrollboxcounter
+// Credit to thelaakes for borrowed utilities from scrollboxcounter
 public class ClueSaverUtils
 {
 	private static final int BASE_CLUE_COUNT = 2;

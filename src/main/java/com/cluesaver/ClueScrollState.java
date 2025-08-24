@@ -44,4 +44,14 @@ public class ClueScrollState
 		this.location = ClueLocation.UNKNOWN;
 		this.deposited = false;
 	}
+
+	public boolean isLocationBank()
+	{
+		return location == ClueLocation.BANK;
+	}
+
+	public boolean isLocationInventory()
+	{
+		return location == ClueLocation.INVENTORY;
+	}
 }
