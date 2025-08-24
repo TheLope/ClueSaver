@@ -31,10 +31,8 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import javax.inject.Inject;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
-import net.runelite.client.callback.ClientThread;
 import net.runelite.client.input.MouseListener;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
@@ -48,7 +46,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private static final int POSITION_SPEED_MULTIPLIER = 2;
 	private static final int EXPANDED_START_Y_OFFSET = 3;
 	private static final int CLUE_X_OFFSET = 4;
-	private static final int SAVER_ICON_OFFSET = 4;
 	private static final int BUTTON_VERTICAL_OFFSET = 8;
 	private static final int EXPANDED_UI_EXTRA_WIDTH = 50;
 	private static final int EXPANDED_BUTTON_LEFT_OFFSET = 45;
@@ -56,9 +53,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private static final int PIP_ADDITIONAL_Y_OFFSET = 6;
 	private static final int CLOSED_UI_Y_DIVIDER = 3;
 	private final Client client;
-	private final ClientThread clientThread;
 	private final ClueSaverConfig config;
-	private final ClueSaverUtils clueSaverUtils;
 	private final ClueSaverPlugin clueSaverPlugin;
 	private int cachedVisibleTierCount = 0;
 	private int previousTotalBoxes = 0;
@@ -67,12 +62,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private boolean isButtonHovered = false;
 	private boolean isExpanded = false;
 	private Rectangle buttonBounds;
-	private Rectangle beginnerIconBounds;
-	private Rectangle easyIconBounds;
-	private Rectangle mediumIconBounds;
-	private Rectangle hardIconBounds;
-	private Rectangle eliteIconBounds;
-	private Rectangle masterIconBounds;
 	private final BufferedImage closedUIImage;
 	private final BufferedImage buttonUIImage;
 	private final BufferedImage buttonUIHoveredImage;
@@ -91,14 +80,10 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	private final BufferedImage bankIcon;
 
 	@Inject
-	public ClueSaverUI(Client client, ClientThread clientThread,
-					   ClueSaverUtils clueSaverUtils, ClueSaverPlugin clueSaverPlugin,
-					   ClueSaverConfig config)
+	public ClueSaverUI(Client client, ClueSaverPlugin clueSaverPlugin, ClueSaverConfig config)
 	{
 		this.config = config;
 		this.client = client;
-		this.clientThread = clientThread;
-		this.clueSaverUtils = clueSaverUtils;
 		this.clueSaverPlugin = clueSaverPlugin;
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_WIDGETS);
@@ -125,7 +110,8 @@ public class ClueSaverUI extends Overlay implements MouseListener
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		if (!shouldDraw || !config.showUI() || closedUIImage == null || buttonUIImage == null || buttonUIHoveredImage == null)
+		if (!shouldDraw || !config.showUI() || closedUIImage == null || buttonUIImage == null
+			|| buttonUIHoveredImage == null)
 		{
 			return null;
 		}
@@ -150,7 +136,8 @@ public class ClueSaverUI extends Overlay implements MouseListener
 			? canvasWidth - closedUIImage.getWidth()
 			: 0;
 
-		final int closedUIY = (canvasHeight - totalHeight) / CLOSED_UI_Y_DIVIDER + POSITION_SPEED_MULTIPLIER * config.uiVerticalOffset();
+		final int closedUIY = (canvasHeight - totalHeight)
+			/ CLOSED_UI_Y_DIVIDER + POSITION_SPEED_MULTIPLIER * config.uiVerticalOffset();
 
 		int cropHeight = Math.min(closedUIImage.getHeight(), totalHeight);
 
@@ -193,9 +180,12 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 				graphics.drawImage(clueImage, clueX, currentY, null);
 
-				TierStats stats = calculateTierStats(tier);
+				// Get tier state
+				ClueScrollState clueState = clueSaverPlugin.getClueStates().getClueStateFromTier(tier);
+				int totalClueCount = getTotalClueCount(tier);
+				int maxClueCount = ClueSaverUtils.getMaxClueCount(tier, client);
 
-				if (stats.hasClueInInventory() && invIcon != null)
+				if (clueState.isLocationInventory() && invIcon != null)
 				{
 					final int invIconX = anchorRight
 						? clueX
@@ -205,7 +195,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 					graphics.drawImage(invIcon, invIconX, invIconY, null);
 				}
 
-				if (stats.hasClueInBank() && bankIcon != null)
+				if (clueState.isLocationBank() && bankIcon != null)
 				{
 					final int bankIconX = anchorRight
 						? clueX
@@ -221,25 +211,27 @@ public class ClueSaverUI extends Overlay implements MouseListener
 
 				final int pipStartY = currentY + clueImage.getHeight();
 
-				if (stats.getTotalBoxes() == stats.getMaxClueCount() && activeClueSaver != null)
+				if (totalClueCount == maxClueCount && activeClueSaver != null)
 				{
 					graphics.drawImage(activeClueSaver, clueX, currentY, null);
 				}
 
-				for (int pip = stats.getMaxClueCount() - 1; pip >= 0; pip--)
+				for (int pip = maxClueCount - 1; pip >= 0; pip--)
 				{
-					int pipY = pipStartY - ((pip + 1) * (pipImage.getHeight() - PIP_VERTICAL_OVERLAP)) - PIP_ADDITIONAL_Y_OFFSET;
+					int pipY = pipStartY
+						- ((pip + 1) * (pipImage.getHeight() - PIP_VERTICAL_OVERLAP))
+						- PIP_ADDITIONAL_Y_OFFSET;
 
 					BufferedImage pipToDraw;
-					if (stats.getTotalBoxes() == stats.getMaxClueCount())
+					if (totalClueCount == maxClueCount)
 					{
 						pipToDraw = pipRedImage;
 					}
-					else if (stats.getMaxClueCount() - stats.getTotalBoxes() == 1 && pip < stats.getTotalBoxes())
+					else if (maxClueCount - totalClueCount == 1 && pip < totalClueCount)
 					{
 						pipToDraw = pipOrangeImage;
 					}
-					else if (pip < stats.getTotalBoxes())
+					else if (pip < totalClueCount)
 					{
 						pipToDraw = pipGreenImage;
 					}
@@ -261,9 +253,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 						graphics.drawImage(pipToDraw, pipX, pipY, null);
 					}
 				}
-
-				updateIconBounds(tier, clueX, currentY, clueImage);
-
 				currentY = nextY;
 			}
 		}
@@ -297,32 +286,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		return null;
 	}
 
-	private void updateIconBounds(ClueTier tier, int x, int y, BufferedImage image)
-	{
-		Rectangle bounds = new Rectangle(x, y, image.getWidth(), image.getHeight());
-		switch (tier)
-		{
-			case BEGINNER:
-				beginnerIconBounds = bounds;
-				break;
-			case EASY:
-				easyIconBounds = bounds;
-				break;
-			case MEDIUM:
-				mediumIconBounds = bounds;
-				break;
-			case HARD:
-				hardIconBounds = bounds;
-				break;
-			case ELITE:
-				eliteIconBounds = bounds;
-				break;
-			case MASTER:
-				masterIconBounds = bounds;
-				break;
-		}
-	}
-
 	private void updateVisibilityIfNeeded()
 	{
 		if (visibilityNeedsUpdate || hasBoxCountChanged())
@@ -336,20 +299,6 @@ public class ClueSaverUI extends Overlay implements MouseListener
 				}
 			}
 			visibilityNeedsUpdate = false;
-		}
-	}
-
-	private Rectangle getIconBounds(ClueTier tier)
-	{
-		switch (tier)
-		{
-			case BEGINNER: return beginnerIconBounds;
-			case EASY: return easyIconBounds;
-			case MEDIUM: return mediumIconBounds;
-			case HARD: return hardIconBounds;
-			case ELITE: return eliteIconBounds;
-			case MASTER: return masterIconBounds;
-			default: return new Rectangle();
 		}
 	}
 
@@ -367,121 +316,15 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		}
 	}
 
-	private static class TierStats
+	private int getTotalClueCount(ClueTier tier)
 	{
-		@Getter
-		private final int totalBoxes;
-		@Getter
-		private final int maxClueCount;
-		private final boolean hasClueInInventory;
-		private final boolean hasClueInBank;
+		ScrollBoxState boxState = clueSaverPlugin.getClueStates().getBoxStateFromTier(tier);
+		ClueScrollState clueState = clueSaverPlugin.getClueStates().getClueStateFromTier(tier);
 
-		public TierStats(int totalBoxes, int maxClueCount, boolean hasClueInInventory, boolean hasClueInBank)
-		{
-			this.totalBoxes = totalBoxes;
-			this.maxClueCount = maxClueCount;
-			this.hasClueInInventory = hasClueInInventory;
-			this.hasClueInBank = hasClueInBank;
-		}
-
-		public boolean hasClueInInventory()
-		{
-			return hasClueInInventory;
-		}
-
-		public boolean hasClueInBank()
-		{
-			return hasClueInBank;
-		}
-	}
-
-	private TierStats calculateTierStats(ClueTier tier)
-	{
-		int totalBoxes = 0;
-		boolean hasClueInInventory = false;
-		boolean hasClueInBank = false;
-
-		String savingCause = clueSaverPlugin.getTierSavingCause(tier, true);
-		if (savingCause != null)
-		{
-			String cleanedCause = savingCause
-				.replaceAll("<col=[^>]+>", "")
-				.replaceAll("</col>", "");
-
-			String[] parts = cleanedCause.split(" \\| ");
-			for (String part : parts)
-			{
-				if (config.separateBoxCounts())
-				{
-					String[] lines = part.split("<br>");
-					for (String line : lines)
-					{
-						line = line.trim();
-						if (line.contains("Inv Boxes:"))
-						{
-							try
-							{
-								String countStr = line.substring(line.indexOf("Inv Boxes:") + "Inv Boxes:".length()).trim();
-								totalBoxes += Integer.parseInt(countStr);
-							}
-							catch (Exception e)
-							{
-								log.debug("Error processing Inv Boxes", e);
-							}
-						}
-						if (line.contains("Bank Boxes:"))
-						{
-							try
-							{
-								String countStr = line.substring(line.indexOf("Bank Boxes:") + "Bank Boxes:".length()).trim();
-								totalBoxes += Integer.parseInt(countStr);
-							}
-							catch (Exception e)
-							{
-								log.debug("Error processing Bank Boxes", e);
-							}
-						}
-						if (line.contains("Clue in inventory"))
-						{
-							hasClueInInventory = true;
-							totalBoxes++;
-						}
-						else if (line.contains("Clue in bank"))
-						{
-							hasClueInBank = true;
-							totalBoxes++;
-						}
-					}
-				}
-				else
-				{
-					if (part.contains("Scroll Boxes:"))
-					{
-						try
-						{
-							String countStr = part.substring(part.indexOf("Scroll Boxes:") + "Scroll Boxes:".length()).trim();
-							totalBoxes = Integer.parseInt(countStr);
-						}
-						catch (Exception e)
-						{
-							log.debug("Error processing Scroll Boxes", e);
-						}
-					}
-					if (part.contains("Clue in inventory"))
-					{
-						hasClueInInventory = true;
-						totalBoxes++;
-					}
-					else if (part.contains("Clue in bank"))
-					{
-						hasClueInBank = true;
-						totalBoxes++;
-					}
-				}
-			}
-		}
-		int maxClueCount = clueSaverUtils.getMaxClueCount(tier, client);
-		return new TierStats(totalBoxes, maxClueCount, hasClueInInventory, hasClueInBank);
+		// Scroll boxes + clue scroll
+		return (boxState.getTotalCount()
+			+ (clueState.isLocationInventory() ? 1 : 0)
+			+ (clueState.isLocationBank() ? 1 : 0));
 	}
 
 	private boolean shouldShowTier(ClueTier tier)
@@ -510,7 +353,7 @@ public class ClueSaverUI extends Overlay implements MouseListener
 		int currentTotalBoxes = 0;
 		for (ClueTier tier : ClueTier.values())
 		{
-			currentTotalBoxes += calculateTierStats(tier).getTotalBoxes();
+			currentTotalBoxes += getTotalClueCount(tier);
 		}
 
 		if (currentTotalBoxes != previousTotalBoxes)
