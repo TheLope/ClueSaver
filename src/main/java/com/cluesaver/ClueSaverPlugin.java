@@ -59,8 +59,10 @@ import net.runelite.api.events.GameTick;
 import net.runelite.api.events.ItemContainerChanged;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.MenuShouldLeftClick;
+import net.runelite.api.events.VarbitChanged;
 import net.runelite.api.events.WidgetClosed;
 import net.runelite.api.events.WidgetLoaded;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.InterfaceID;
 import net.runelite.api.widgets.Widget;
@@ -142,6 +144,8 @@ public class ClueSaverPlugin extends Plugin
 	private int casketCooldown;
 	private boolean loggingIn;
 	private String profileKey;
+	@Getter
+	private boolean isUltimateIronman = false;
 
 	@Override
 	protected void startUp() throws Exception
@@ -252,6 +256,21 @@ public class ClueSaverPlugin extends Plugin
 		else if (event.getGroupId() == InterfaceID.CLUESCROLL_REWARD)
 		{
 			checkReward();
+		}
+	}
+
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged varbitChanged)
+	{
+		if (varbitChanged.getVarbitId() == VarbitID.IRONMAN)
+		{
+			isUltimateIronman = varbitChanged.getValue() == 2;
+
+			if (isUltimateIronman && profileKey != null)
+			{
+				// Re-run load with UIM sanitization enabled
+				tierSaveManager.loadStateFromConfig();
+			}
 		}
 	}
 

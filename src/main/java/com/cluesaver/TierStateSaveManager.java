@@ -108,6 +108,20 @@ public class TierStateSaveManager
 
 				TierState loadedTierData = gson.fromJson(tierStateJson, tierDataType);
 
+				// Sanitize TierState for UIM if invalid setting
+				if (clueSaverPlugin.isUltimateIronman())
+				{
+					if (loadedTierData.getClueScrollLocation() == ClueLocation.BANK)
+					{
+						loadedTierData.setClueScrollLocation(ClueLocation.UNKNOWN);
+					}
+
+					if (loadedTierData.getScrollBoxBankCount() > 0)
+					{
+						loadedTierData.setScrollBoxBankCount(0);
+					}
+				}
+
 				// Convert TierState back to ClueScrollState/ScrollBoxState
 				clueSaverPlugin.getClueStates().setFromTierState(loadedTierData, tier);
 
