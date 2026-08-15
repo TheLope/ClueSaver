@@ -27,7 +27,7 @@ dependencies {
 }
 
 group = 'com.cluesaver'
-version = '2.3.1'
+version = '2.4.0'
 
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
