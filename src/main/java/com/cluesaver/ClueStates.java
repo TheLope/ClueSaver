@@ -294,4 +294,16 @@ public class ClueStates
 		boxState.setInventoryCount(loadedTierData.getScrollBoxInventoryCount());
 		boxState.setBankCount(loadedTierData.getScrollBoxBankCount());
 	}
+
+	public void resetTierState(ClueTier tier)
+	{
+		// Reset tier clue scroll state
+		ClueScrollState scrollState = getClueStateFromTier(tier);
+		scrollState.setLocation(ClueLocation.UNKNOWN);
+
+		// Reset tier scroll box states
+		ScrollBoxState boxState = getBoxStateFromTier(tier);
+		boxState.setInventoryCount(0);
+		boxState.setBankCount(0);
+	}
 }

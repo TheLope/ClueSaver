@@ -31,6 +31,7 @@ import com.cluesaver.ids.ToaChest;
 import com.cluesaver.ids.TobChest;
 import com.google.inject.Provides;
 import java.awt.Color;
+import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 import lombok.Getter;
@@ -138,19 +139,25 @@ public class ClueSaverPlugin extends Plugin
 	@Inject
 	private MouseManager mouseManager;
 
-	private boolean profileChanged;
 	private int casketCooldown;
 	private boolean loggingIn;
+	private String profileKey;
 
 	@Override
 	protected void startUp() throws Exception
 	{
+		profileKey = null;
 		overlayManager.add(infoOverlay);
-		tierSaveManager.loadStateFromConfig();
 		overlayManager.add(clueSaverUI);
 		clueSaverUI.setVisible(true);
 		mouseManager.registerMouseListener(clueSaverUI);
 		loggingIn = true;
+
+		String profileKey = configManager.getRSProfileKey();
+		if (profileKey != null)
+		{
+			switchProfile(profileKey);
+		}
 	}
 
 	@Override
@@ -158,7 +165,7 @@ public class ClueSaverPlugin extends Plugin
 	{
 		overlayManager.remove(infoOverlay);
 		removeInfoBox();
-		tierSaveManager.saveStateToConfig();
+		tierSaveManager.saveStateToConfig(profileKey);
 		overlayManager.remove(clueSaverUI);
 		clueSaverUI.setVisible(false);
 		mouseManager.unregisterMouseListener(clueSaverUI);
@@ -169,16 +176,7 @@ public class ClueSaverPlugin extends Plugin
 	{
 		if (event.getGameState() == GameState.LOGIN_SCREEN)
 		{
-			tierSaveManager.saveStateToConfig();
-		}
-
-		if (event.getGameState() == GameState.LOGGED_IN)
-		{
-			if (profileChanged)
-			{
-				profileChanged = false;
-				tierSaveManager.loadStateFromConfig();
-			}
+			tierSaveManager.saveStateToConfig(profileKey);
 		}
 
 		if (event.getGameState() == GameState.LOGGING_IN)
@@ -190,13 +188,37 @@ public class ClueSaverPlugin extends Plugin
 	@Subscribe
 	public void onRuneScapeProfileChanged(RuneScapeProfileChanged event)
 	{
-		profileChanged = true;
+		final String profileKey = configManager.getRSProfileKey();
+		if (profileKey == null)
+		{
+			return;
+		}
+
+		if (profileKey.equals(this.profileKey))
+		{
+			return;
+		}
+
+		switchProfile(profileKey);
+	}
+
+	private void switchProfile(String profileKey)
+	{
+		// Save data to previous profile
+		tierSaveManager.saveStateToConfig(this.profileKey);
+
+		this.profileKey = profileKey;
+		log.debug("Switched to profile {}", profileKey);
+
+		// Save data from current profile
+		migrateConfig();
+		tierSaveManager.loadStateFromConfig();
 	}
 
 	@Subscribe(priority = 100)
 	private void onClientShutdown(ClientShutdown event)
 	{
-		tierSaveManager.saveStateToConfig();
+		tierSaveManager.saveStateToConfig(profileKey);
 	}
 
 	@Subscribe
@@ -231,6 +253,37 @@ public class ClueSaverPlugin extends Plugin
 		{
 			checkReward();
 		}
+	}
+
+	private void migrateToRSProfile(String stateKey)
+	{
+		String tierStateJson = configManager.getConfiguration(ClueSaverConfig.GROUP, stateKey);
+
+		if (tierStateJson != null)
+		{
+			configManager.setRSProfileConfiguration(ClueSaverConfig.GROUP, stateKey, tierStateJson);
+			configManager.unsetConfiguration(ClueSaverConfig.GROUP, stateKey);
+		}
+	}
+
+	private void migrateConfig()
+	{
+		String migrated = configManager.getConfiguration(ClueSaverConfig.GROUP, "migrated");
+		if ("1".equals(migrated))
+		{
+			return;
+		}
+
+		List.of(
+			ClueSaverConfig.BEGINNER_STATE,
+			ClueSaverConfig.EASY_STATE,
+			ClueSaverConfig.MEDIUM_STATE,
+			ClueSaverConfig.HARD_STATE,
+			ClueSaverConfig.ELITE_STATE,
+			ClueSaverConfig.MASTER_STATE
+		).forEach(this::migrateToRSProfile);
+
+		configManager.setConfiguration(ClueSaverConfig.GROUP, "migrated", 1);
 	}
 
 	private void checkBank()

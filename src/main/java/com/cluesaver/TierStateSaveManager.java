@@ -48,32 +48,27 @@ public class TierStateSaveManager
 		this.gson = gson;
 	}
 
-	public void saveStateToConfig()
+	private void saveTierToConfig(String profileKey, ClueTier tier, String configKey)
 	{
-		// Serialize tier states save to config
-		TierState beginnerState = getTierData(ClueTier.BEGINNER);
-		String beginnerStateData = gson.toJson(beginnerState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.BEGINNER_STATE, beginnerStateData);
+		// Serialize tier state and save to config
+		TierState state = getTierData(tier);
+		String stateData = gson.toJson(state);
+		configManager.setConfiguration(ClueSaverConfig.GROUP, profileKey, configKey, stateData);
+	}
 
-		TierState easyState = getTierData(ClueTier.EASY);
-		String easyStateData = gson.toJson(easyState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.EASY_STATE, easyStateData);
+	public void saveStateToConfig(String profileKey)
+	{
+		if (profileKey == null)
+		{
+			return;
+		}
 
-		TierState mediumState = getTierData(ClueTier.MEDIUM);
-		String mediumStateData = gson.toJson(mediumState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.MEDIUM_STATE, mediumStateData);
-
-		TierState hardState = getTierData(ClueTier.HARD);
-		String hardStateData = gson.toJson(hardState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.HARD_STATE, hardStateData);
-
-		TierState eliteState = getTierData(ClueTier.ELITE);
-		String eliteStateData = gson.toJson(eliteState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.ELITE_STATE, eliteStateData);
-
-		TierState masterState = getTierData(ClueTier.MASTER);
-		String masterStateData = gson.toJson(masterState);
-		configManager.setConfiguration(ClueSaverConfig.GROUP, ClueSaverConfig.MASTER_STATE, masterStateData);
+		saveTierToConfig(profileKey, ClueTier.BEGINNER, ClueSaverConfig.BEGINNER_STATE);
+		saveTierToConfig(profileKey, ClueTier.EASY, ClueSaverConfig.EASY_STATE);
+		saveTierToConfig(profileKey, ClueTier.MEDIUM, ClueSaverConfig.MEDIUM_STATE);
+		saveTierToConfig(profileKey, ClueTier.HARD, ClueSaverConfig.HARD_STATE);
+		saveTierToConfig(profileKey, ClueTier.ELITE, ClueSaverConfig.ELITE_STATE);
+		saveTierToConfig(profileKey, ClueTier.MASTER, ClueSaverConfig.MASTER_STATE);
 	}
 
 	private TierState getTierData(ClueTier tier)
@@ -101,7 +96,7 @@ public class TierStateSaveManager
 
 	public void loadTierFromConfig(String key, ClueTier tier)
 	{
-		String tierStateJson = configManager.getConfiguration(ClueSaverConfig.GROUP, key);
+		String tierStateJson = configManager.getRSProfileConfiguration(ClueSaverConfig.GROUP, key);
 
 		if (tierStateJson != null)
 		{
@@ -120,6 +115,11 @@ public class TierStateSaveManager
 			{
 				log.error("e: ", err);
 			}
+		}
+		// We have no data for this tier. Reset to unknown state
+		else
+		{
+			clueSaverPlugin.getClueStates().resetTierState(tier);
 		}
 	}
 }
